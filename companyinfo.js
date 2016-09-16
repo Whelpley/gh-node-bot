@@ -9,11 +9,16 @@ module.exports = {
             email: "steve@gmail.com",
             contactName: "Steven Jones"
         },
-        issues: {
-            "I have no service": "pay your bill",
-            "My phone exploded": "get a new one",
-            "I have no friends": "stop being creepy"
-        }
+        issues: [
+            "I have no service",
+            "My phone exploded",
+            "I have no friends"
+        ],
+        solutions: [
+            "Pay your bill",
+            "Get a new one",
+            "Stop being creepy"
+        ]
     },
     "General Mills": {
         contactInfo: {
@@ -21,11 +26,16 @@ module.exports = {
             email: "billy@gmail.com",
             contactName: "Billy Bob Thornton"
         },
-        issues: {
-            "My cereal is soggy": "Dry it in the oven",
-            "I am out of milk": "Use water",
-            "I am bored with Cheerios": "Try Honey Nut Cheerios"
-        }
+        issues: [
+            "My cereal is soggy",
+            "I am out of milk",
+            "I am bored with Cheerios"
+        ],
+        solutions: [
+            "Dry it in the oven",
+            "Use water",
+            "Try Honey Nut Cheerios"
+        ]
     },
     "Comcast": {
         contactInfo: {
@@ -33,10 +43,15 @@ module.exports = {
             email: "amy@gmail.com",
             contactName: "Amy Acker"
         },
-        issues: {
-            "There's nothing good on TV": "Go outside",
-            "My cable is out": "Play a board game",
-            "I don't have HBO": "Watch PBS"
-        }
+        issues: [
+            "There's nothing good on TV",
+            "My cable is out",
+            "I don't have HBO"
+        ],
+        solutions: [
+            "Go outside",
+            "Play a board game",
+            "Watch PBS"
+        ]
     }
 }

@@ -46,7 +46,8 @@ app.post('/webhook/', function (req, res) {
       // match text var to companies list
       for (let i = 0; i < companyNames.length; i++) {
         if (text === companyNames[i]) {
-          sendGenericMessage(sender)
+          let singleCompanyInfo = companyInfo[text];
+          sendStructuredMessage(sender, text, singleCompanyInfo);
           continue
         }
       };
@@ -133,6 +134,59 @@ function sendGenericMessage(sender) {
 }
 
 
+function sendStructuredMessage(sender, text, singleCompanyInfo) {
+    let companyName = text;
+    let contactInfo = singleCompanyInfo.contactInfo;
+    let issues = singleCompanyInfo.issues;
+    let solutions = singleCompanyInfo.solutions;
+
+    let messageData = {
+        "attachment": {
+            "type": "template",
+            "payload": {
+                "template_type": "generic",
+                "elements": [{
+                    "title": "Issue #1: " + issues[0],
+                    "subtitle": "Solution: " + solutions[0],
+                    "image_url": "http://messengerdemo.parseapp.com/img/rift.png",
+                    "buttons": [{
+                        "type": "web_url",
+                        "url": "https://gethuman.com",
+                        "title": "Contact GetHuman for help"
+                    }, {
+                        "type": "postback",
+                        "title": "Postback",
+                        "payload": "Payload for first element in a generic bubble",
+                    }],
+                }, {
+                    "title": "Second card",
+                    "subtitle": "Element #2 of an hscroll",
+                    "image_url": "http://messengerdemo.parseapp.com/img/gearvr.png",
+                    "buttons": [{
+                        "type": "postback",
+                        "title": "Postback",
+                        "payload": "Payload for second element in a generic bubble",
+                    }],
+                }]
+            }
+        }
+    }
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:token},
+        method: 'POST',
+        json: {
+            recipient: {id:sender},
+            message: messageData,
+        }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        }
+    })
+}
 
 // Spin up the server
 app.listen(app.get('port'), function() {
