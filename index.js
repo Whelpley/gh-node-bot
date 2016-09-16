@@ -5,6 +5,8 @@ const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
 
+const companyInfo = require('./companyinfo.js');
+
 app.set('port', (process.env.PORT || 5000))
 
 // Process application/x-www-form-urlencoded
@@ -26,6 +28,8 @@ app.get('/webhook/', function (req, res) {
     res.send('Error, wrong token')
 })
 
+//how does this remember a conversation thread?
+
 app.post('/webhook/', function (req, res) {
   let messaging_events = req.body.entry[0].messaging
   for (let i = 0; i < messaging_events.length; i++) {
@@ -37,6 +41,16 @@ app.post('/webhook/', function (req, res) {
           sendGenericMessage(sender)
           continue
       }
+
+      let companyNames = Object.keys(companyInfo);
+      // match text var to companies list
+      for (let i = 0; i < companyNames.length; i++) {
+        if (text === companyNames[i]) {
+          sendGenericMessage(sender)
+          continue
+        }
+      };
+
       sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200))
     }
     if (event.postback) {
@@ -47,6 +61,7 @@ app.post('/webhook/', function (req, res) {
   }
   res.sendStatus(200)
 })
+
 const token = process.env.FB_PAGE_ACCESS_TOKEN
 
 function sendTextMessage(sender, text) {
