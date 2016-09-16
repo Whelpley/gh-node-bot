@@ -55,8 +55,8 @@ app.post('/webhook/', function (req, res) {
       sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200))
     }
     if (event.postback) {
-      let text = JSON.stringify(event.postback)
-      sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token)
+      let text = JSON.stringify(event.postback);
+      sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
       continue
     }
   }
@@ -153,7 +153,13 @@ function sendStructuredMessage(sender, text, singleCompanyInfo) {
                         "type": "web_url",
                         "url": "https://gethuman.com",
                         "title": "Contact GetHuman for help"
-                    }, {
+                    },
+                    {
+                        "type": "web_url",
+                        "url": "www.theonion.com",
+                        "title": "Go read The Onion instead"
+                    },
+                    {
                         "type": "postback",
                         "title": "Postback",
                         "payload": "Payload for first element in a generic bubble",
@@ -164,7 +170,7 @@ function sendStructuredMessage(sender, text, singleCompanyInfo) {
                     "image_url": "http://messengerdemo.parseapp.com/img/gearvr.png",
                     "buttons": [{
                         "type": "postback",
-                        "title": "Postback",
+                        "title": "Get contact info for " + companyName,
                         "payload": "Payload for second element in a generic bubble",
                     }],
                 }]
@@ -187,6 +193,7 @@ function sendStructuredMessage(sender, text, singleCompanyInfo) {
         }
     })
 }
+
 
 // Spin up the server
 app.listen(app.get('port'), function() {
