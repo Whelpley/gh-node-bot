@@ -56,7 +56,7 @@ app.post('/webhook/', function (req, res) {
             //punch up GH API with user text input
             request('https://api.gethuman.co/v3/companies/search?match=' + text, function (error, response, body) {
               if (!error && response.statusCode == 200) {
-                parsedBody = JSON.parse(body);
+                let parsedBody = JSON.parse(body);
                 console.log("Full API response: " + parsedBody)
                 // harvest the company info from body of response,
                 for (let i=0; i < parsedBody.length; i++) {
