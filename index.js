@@ -8,6 +8,7 @@ const app = express()
 const companyInfo = require('./companyinfo.js');
 
 const token = process.env.FB_PAGE_ACCESS_TOKEN
+const GH_token = process.env.GH_API_ACCESS_TOKEN
 
 app.set('port', (process.env.PORT || 5000))
 
@@ -41,12 +42,21 @@ app.post('/webhook/', function (req, res) {
         let sender = event.sender.id
 
         if (event.message && event.message.text) {
-          let text = event.message.text;
+            let text = event.message.text;
 
           //echoes back everything sent
-          sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
+            sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
-          sendAllCompanyCards(sender);
+          //punch up GH API with user text input
+            request('https://api.gethuman.co/v3/companies/search?match=' + text, function (error, response, body) {
+              if (!error && response.statusCode == 200) {
+                console.log(body) // Show the HTML for the Google homepage.
+              } else if (error) {
+                console.log(error);
+              }
+            })
+
+            sendAllCompanyCards(sender);
 
           // // bounces back Generic template cards
           // if (text === 'Generic') {
