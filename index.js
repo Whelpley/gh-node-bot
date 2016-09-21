@@ -39,10 +39,10 @@ app.post('/webhook/', function (req, res) {
     let sender = event.sender.id
 
     if (event.message && event.message.text) {
-      let text = event.message.text
+      let text = event.message.text;
 
       //echoes back everything sent
-      sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200))
+      sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
       sendAllCompanyCards(sender);
 
@@ -80,7 +80,9 @@ function sendAllCompanyCards(sender) {
 
     // first, displaying a single card
     let company = companyInfo[0];
-    let companyName = Object.keys(companyInfo)[0];
+    let companyName = Object.keys(companyInfo)[0] || '';
+    let contactName = company.contactInfo.contactName || '';
+    let phone = company.contactInfo.phone || '';
     console.log("company name is: " + companyName);
 
     let messageData = {
@@ -90,11 +92,11 @@ function sendAllCompanyCards(sender) {
                 "template_type": "generic",
                 "elements": [{
                     "title": companyName,
-                    "subtitle": "You want to reach " + company.contactInfo.contactName + "to fix your issue.",
+                    "subtitle": "You want to talk to " + contactName + "to fix your issue.",
                     "buttons": [{
                         "type": "phone_number",
                         "title": "Call " + companyName,
-                        "payload": company.contactInfo.phone
+                        "payload": phone
                     }, {
                         "type": "web_url",
                         "url": "https://gethuman.com",
