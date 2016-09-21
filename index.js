@@ -4,7 +4,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
-const phoneConverter = require('phone');
+const phoneFormatter = require('phone-formatter');
 
 // const companyInfo = require('./companyinfo.js');
 
@@ -65,7 +65,7 @@ app.post('/webhook/', function (req, res) {
                     let newPhone = body[i].callback.phone || '';
                     //format phone# for international format
                     if (newPhone) {
-                        newPhone = phoneConverter(newPhoneRaw)[0];
+                        newPhone = phoneFormatter.format(newPhone, "+1NNNNNNNNNN");
                     };
                     let newCompany = new Company(newName, newInfo, newPhone);
                     // push object into Companies array
