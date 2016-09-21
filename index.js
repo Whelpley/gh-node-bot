@@ -33,12 +33,6 @@ app.get('/webhook/', function (req, res) {
 //how does this remember a conversation thread?
 
 app.post('/webhook/', function (req, res) {
-    // dealing with
-    // if (req.query['hub.verify_token'] === 'my_voice_is_my_password_verify_me') {
-    //     console.log("Facebook just tried to verify token")
-    //     res.send(req.query['hub.challenge'])
-    // }
-    // res.send('Error, wrong token')
 
     //where all responses to text inputs are handled
     let messaging_events = req.body.entry[0].messaging
@@ -52,7 +46,7 @@ app.post('/webhook/', function (req, res) {
           //echoes back everything sent
           sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
-          // sendAllCompanyCards(sender);
+          sendAllCompanyCards(sender);
 
           // // bounces back Generic template cards
           // if (text === 'Generic') {
@@ -90,8 +84,8 @@ function sendAllCompanyCards(sender) {
     let company = companyInfo[0];
     let companyName = Object.keys(companyInfo)[0] || '';
     console.log("company name is: " + companyName);
-    let contactName = company.contactInfo.contactName || '';
-    let phone = company.contactInfo.phone || '';
+    let contactName = companyInfo[companyName].contactInfo.contactName || '';
+    let phone = companyInfo[companyName].contactInfo.phone || '';
 
     let messageData = {
         "attachment": {
