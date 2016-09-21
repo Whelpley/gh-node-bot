@@ -86,15 +86,10 @@ function sendAllCompanyCards(sender) {
     console.log("company name is: " + companyName);
     let contactName = companyInfo[companyName].contactInfo.contactName || '';
     let phone = companyInfo[companyName].contactInfo.phone || '';
-
-    let messageData = {
-        "attachment": {
-            "type": "template",
-            "payload": {
-                "template_type": "generic",
-                "elements": [{
+    //wrap it all up in one card
+    let singleElement = {
                     "title": companyName,
-                    "subtitle": "You want to talk to " + contactName + "to fix your issue.",
+                    "subtitle": "You want to talk to " + contactName + " to fix your issue.",
                     "buttons": [{
                         "type": "phone_number",
                         "title": "Call " + companyName,
@@ -104,7 +99,16 @@ function sendAllCompanyCards(sender) {
                         "url": "https://gethuman.com",
                         "title": "Solve My Problem"
                     }],
-                }]
+                }
+
+
+
+    let messageData = {
+        "attachment": {
+            "type": "template",
+            "payload": {
+                "template_type": "generic",
+                "elements": [singleElement]
             }
         }
     }
