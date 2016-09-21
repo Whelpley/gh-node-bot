@@ -5,8 +5,9 @@
 module.exports = {
     "Sprint": {
         contactInfo: {
-            phone: "111-111-1111",
+            phone: "11111111111",
             email: "steve@gmail.com",
+            url: "www.sprint.com",
             contactName: "Steven Jones"
         },
         issues: [
@@ -22,8 +23,9 @@ module.exports = {
     },
     "General Mills": {
         contactInfo: {
-            phone: "222-222-2222",
+            phone: "12222222222",
             email: "billy@gmail.com",
+            url: "www.gm.com",
             contactName: "Billy Bob Thornton"
         },
         issues: [
@@ -39,8 +41,9 @@ module.exports = {
     },
     "Comcast": {
         contactInfo: {
-            phone: "333-333-3333",
+            phone: "13333333333",
             email: "amy@gmail.com",
+            url: "www.comcast.com",
             contactName: "Amy Acker"
         },
         issues: [
