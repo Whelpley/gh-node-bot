@@ -34,10 +34,10 @@ app.get('/webhook/', function (req, res) {
 
 app.post('/webhook/', function (req, res) {
     // dealing with
-    if (req.query['hub.verify_token'] === 'my_voice_is_my_password_verify_me') {
-        console.log("Facebook just tried to verify token")
-        res.send(req.query['hub.challenge'])
-    }
+    // if (req.query['hub.verify_token'] === 'my_voice_is_my_password_verify_me') {
+    //     console.log("Facebook just tried to verify token")
+    //     res.send(req.query['hub.challenge'])
+    // }
     // res.send('Error, wrong token')
 
     //where all responses to text inputs are handled
@@ -52,7 +52,7 @@ app.post('/webhook/', function (req, res) {
           //echoes back everything sent
           sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
-          sendAllCompanyCards(sender);
+          // sendAllCompanyCards(sender);
 
           // // bounces back Generic template cards
           // if (text === 'Generic') {
@@ -79,9 +79,9 @@ app.post('/webhook/', function (req, res) {
         //   sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
         //   continue
         // }
-
     }
-  res.sendStatus(200)
+
+    res.sendStatus(200)
 })
 
 function sendAllCompanyCards(sender) {
@@ -89,9 +89,9 @@ function sendAllCompanyCards(sender) {
     // first, displaying a single card
     let company = companyInfo[0];
     let companyName = Object.keys(companyInfo)[0] || '';
+    console.log("company name is: " + companyName);
     let contactName = company.contactInfo.contactName || '';
     let phone = company.contactInfo.phone || '';
-    console.log("company name is: " + companyName);
 
     let messageData = {
         "attachment": {
