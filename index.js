@@ -123,19 +123,35 @@ function sendAllCompanyCards(sender, companies) {
         let name = companies[i].name || '';
         let info = companies[i].info || '';
         let phone = companies[i].phone || '';
+        let singleElement = {}
+
         // wrap it all up in one card
-        let singleElement = {
-            "title": name,
-            "subtitle": info,
-            "buttons": [{
-                "type": "phone_number",
-                "title": "Call " + name,
-                "payload": phone
-            }, {
-                "type": "web_url",
-                "url": "https://gethuman.com",
-                "title": "Solve My Problem"
-            }],
+        // no phone link if phone is bad
+        // a better check: regex the phone # to ensure right format
+        if (phone) {
+            singleElement = {
+                "title": name,
+                "subtitle": info,
+                "buttons": [{
+                    "type": "phone_number",
+                    "title": "Call " + name,
+                    "payload": phone
+                }, {
+                    "type": "web_url",
+                    "url": "https://gethuman.com",
+                    "title": "Solve My Problem"
+                }],
+            };
+        } else {
+            singleElement = {
+                "title": name,
+                "subtitle": info,
+                "buttons": [{
+                    "type": "web_url",
+                    "url": "https://gethuman.com",
+                    "title": "Solve My Problem"
+                }],
+            };
         };
         // cheap hack to limit number of cards displayed
         // later: chunk it out in waves
