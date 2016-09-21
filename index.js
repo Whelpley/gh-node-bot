@@ -57,19 +57,16 @@ app.post('/webhook/', function (req, res) {
             request('https://api.gethuman.co/v3/companies/search?match=' + text, function (error, response, body) {
               if (!error && response.statusCode == 200) {
                 let parsedBody = JSON.parse(body);
-                console.log("Full API response: " + parsedBody)
+                console.log("Full API response: " + parsedBody);
                 // harvest the company info from body of response,
                 for (let i=0; i < parsedBody.length; i++) {
 
-                    // console.log('got here ' + body[i]);
-                    // return;
-
                     // construct company object,
                     let newName = parsedBody[i].name || '';
-                    console.log("Company #" + i + ": " + newName);
-                    // let newInfo = body[i].category || '';
-                    // // apparently "callback" is undefined somewhere and starting some crashing
-                    // // let newPhone = body[i].callback.phone || '';
+                    // console.log("Company #" + i + ": " + newName);
+                    let newInfo = parsedBody[i].category || '';
+                    let newPhone = parsedBody[i].callback.phone || '';
+
                     // let newPhone = '';
                     // if (body[i].contactMethods) {
                     //     for (let j = 0; j < body[i].contactMethods.length; j++) {
@@ -78,16 +75,17 @@ app.post('/webhook/', function (req, res) {
                     //         };
                     //     };
                     // }
-                    // //format phone# for international format
-                    // if (newPhone) {
-                    //     newPhone = phoneFormatter.format(newPhone, "+1NNNNNNNNNN");
-                    // };
-                    // let newCompany = new Company(newName, newInfo, newPhone);
-                    // // push object into Companies array
-                    // console.log("Company info extracted from API: " + newCompany);
-                    // companies.push(newCompany);
+
+                    //format phone# for international format
+                    if (newPhone) {
+                        newPhone = phoneFormatter.format(newPhone, "+1NNNNNNNNNN");
+                    };
+                    let newCompany = new Company(newName, newInfo, newPhone);
+                    // push object into Companies array
+                    console.log("Company info for " + newName + ": " + newCompany);
+                    companies.push(newCompany);
                 };
-                // console.log("Formatted companies array: " + companies);
+                console.log("Formatted companies array: " + companies);
                 // call a function to iterate over 'companies' and send back formatted cards
 
               } else if (error) {
