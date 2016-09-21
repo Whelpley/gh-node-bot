@@ -62,7 +62,16 @@ app.post('/webhook/', function (req, res) {
                     // construct company object,
                     let newName = body[i].name || '';
                     let newInfo = body[i].category || '';
-                    let newPhone = body[i].callback.phone || '';
+                    // apparently "callback" is undefined somewhere and starting some crashing
+                    // let newPhone = body[i].callback.phone || '';
+                    let newPhone = '';
+                    if (body[i].contactMethods) {
+                        for (var i = 0; i < body[i].contactMethods.length; i++) {
+                            if (body[i].contactMethods.type === "phone") {
+                                newPhone = body[i].contactMethods.target;
+                            }
+                        };
+                    }
                     //format phone# for international format
                     if (newPhone) {
                         newPhone = phoneFormatter.format(newPhone, "+1NNNNNNNNNN");
