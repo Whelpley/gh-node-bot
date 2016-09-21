@@ -60,11 +60,12 @@ app.post('/webhook/', function (req, res) {
                 // harvest the company info from body of response,
                 for (let i=0; i < body.length; i++) {
 
-                    console.log('got here ' + body[i]);
+                    // console.log('got here ' + body[i]);
                     // return;
 
                     // construct company object,
-                    // let newName = body[i].name || '';
+                    let newName = body[i].name || '';
+                    console.log("Company #" + i + ": " + newName);
                     // let newInfo = body[i].category || '';
                     // // apparently "callback" is undefined somewhere and starting some crashing
                     // // let newPhone = body[i].callback.phone || '';
