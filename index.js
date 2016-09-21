@@ -4,6 +4,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
+const phone = require('phone');
 
 const companyInfo = require('./companyinfo.js');
 
@@ -31,8 +32,6 @@ app.get('/webhook/', function (req, res) {
     res.send('Error, wrong token')
 })
 
-//how does this remember a conversation thread?
-
 app.post('/webhook/', function (req, res) {
 
     //where all responses to text inputs are handled
@@ -43,20 +42,41 @@ app.post('/webhook/', function (req, res) {
 
         if (event.message && event.message.text) {
             let text = event.message.text;
+            let companies = [];
+            function Company(name, info, phone) {
+              this.name = name;
+              this.info = info;
+              this.phone = phone;
+            }
 
-          //echoes back everything sent
+          // echoes back everything sent
+          // keep in development stage to confirm functionality of response
             sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
           //punch up GH API with user text input
             request('https://api.gethuman.co/v3/companies/search?match=' + text, function (error, response, body) {
               if (!error && response.statusCode == 200) {
-                console.log(body) // Show the HTML for the Google homepage.
+                // console.log(body)
+                // harvest the company info from body of response,
+                for (let i=0; i < body.length; i++) {
+                    // construct company object,
+                    let newName = body[i].name;
+                    let newInfo = body[i].category;
+                    let newPhoneRaw = body[i].callback.phone;
+                    //format phone# for international format
+                    let newPhone = phone(newPhoneRaw)[0];
+                    let newCompany = new Company(newName, newInfo, newPhone);
+                    // push object into Companies array
+                    companies.push(newCompany);
+                };
+                console.log(companies);
+                // call a function to iterate over 'companies' and send back formatted cards
               } else if (error) {
                 console.log(error);
               }
             })
 
-            sendAllCompanyCards(sender);
+            // sendAllCompanyCards(sender);
 
           // // bounces back Generic template cards
           // if (text === 'Generic') {
@@ -88,56 +108,54 @@ app.post('/webhook/', function (req, res) {
     res.sendStatus(200)
 })
 
-function sendAllCompanyCards(sender) {
+// function sendAllCompanyCards(sender) {
 
-    // first, displaying a single card
-    let company = companyInfo[0];
-    let companyName = Object.keys(companyInfo)[0] || '';
-    console.log("company name is: " + companyName);
-    let contactName = companyInfo[companyName].contactInfo.contactName || '';
-    let phone = companyInfo[companyName].contactInfo.phone || '';
-    //wrap it all up in one card
-    let singleElement = {
-                    "title": companyName,
-                    "subtitle": "You want to talk to " + contactName + " to fix your issue.",
-                    "buttons": [{
-                        "type": "phone_number",
-                        "title": "Call " + companyName,
-                        "payload": phone
-                    }, {
-                        "type": "web_url",
-                        "url": "https://gethuman.com",
-                        "title": "Solve My Problem"
-                    }],
-                }
+//     // first, displaying a single card
+//     let company = companyInfo[0];
+//     let companyName = Object.keys(companyInfo)[0] || '';
+//     console.log("company name is: " + companyName);
+//     let contactName = companyInfo[companyName].contactInfo.contactName || '';
+//     let phone = companyInfo[companyName].contactInfo.phone || '';
+//     //wrap it all up in one card
+//     let singleElement = {
+//                     "title": companyName,
+//                     "subtitle": "You want to talk to " + contactName + " to fix your issue.",
+//                     "buttons": [{
+//                         "type": "phone_number",
+//                         "title": "Call " + companyName,
+//                         "payload": phone
+//                     }, {
+//                         "type": "web_url",
+//                         "url": "https://gethuman.com",
+//                         "title": "Solve My Problem"
+//                     }],
+//                 }
 
-
-
-    let messageData = {
-        "attachment": {
-            "type": "template",
-            "payload": {
-                "template_type": "generic",
-                "elements": [singleElement]
-            }
-        }
-    }
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token:token},
-        method: 'POST',
-        json: {
-            recipient: {id:sender},
-            message: messageData,
-        }
-    }, function(error, response, body) {
-        if (error) {
-            console.log('Error sending messages: ', error)
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error)
-        }
-    })
-}
+//     let messageData = {
+//         "attachment": {
+//             "type": "template",
+//             "payload": {
+//                 "template_type": "generic",
+//                 "elements": [singleElement]
+//             }
+//         }
+//     }
+//     request({
+//         url: 'https://graph.facebook.com/v2.6/me/messages',
+//         qs: {access_token:token},
+//         method: 'POST',
+//         json: {
+//             recipient: {id:sender},
+//             message: messageData,
+//         }
+//     }, function(error, response, body) {
+//         if (error) {
+//             console.log('Error sending messages: ', error)
+//         } else if (response.body.error) {
+//             console.log('Error: ', response.body.error)
+//         }
+//     })
+// }
 
 function sendTextMessage(sender, text) {
     let messageData = { text:text }
