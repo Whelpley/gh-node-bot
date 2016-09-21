@@ -61,7 +61,7 @@ app.post('/webhook/', function (req, res) {
                 for (let i=0; i < body.length; i++) {
 
                     console.log('got here ' + body[i]);
-                    return;
+                    // return;
 
                     // construct company object,
                     // let newName = body[i].name || '';
