@@ -47,21 +47,21 @@ app.post('/webhook/', function (req, res) {
               this.name = name;
               this.info = info;
               this.phone = phone;
-            }
+            };
 
-          // echoes back everything sent
-          // keep in development stage to confirm functionality of response
+            // echoes back everything sent
+            // keep in development stage to confirm functionality of response
             sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
-          //punch up GH API with user text input
+            //punch up GH API with user text input
             request('https://api.gethuman.co/v3/companies/search?match=' + text, function (error, response, body) {
               if (!error && response.statusCode == 200) {
-                // console.log(body)
+                console.log("Full API response: " + body)
                 // harvest the company info from body of response,
                 for (let i=0; i < body.length; i++) {
                     // construct company object,
-                    let newName = body[i].name;
-                    let newInfo = body[i].category;
+                    let newName = body[i].name || '';
+                    let newInfo = body[i].category || '';
                     let newPhone = body[i].callback.phone || '';
                     //format phone# for international format
                     if (newPhone) {
@@ -69,10 +69,12 @@ app.post('/webhook/', function (req, res) {
                     };
                     let newCompany = new Company(newName, newInfo, newPhone);
                     // push object into Companies array
+                    console.log("Company info extracted from API: " + newCompany);
                     companies.push(newCompany);
                 };
-                console.log(companies);
+                console.log("Formatted companies array: " + companies);
                 // call a function to iterate over 'companies' and send back formatted cards
+
               } else if (error) {
                 console.log(error);
               }
