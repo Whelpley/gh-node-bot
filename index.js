@@ -59,29 +59,33 @@ app.post('/webhook/', function (req, res) {
                 console.log("Full API response: " + body)
                 // harvest the company info from body of response,
                 for (let i=0; i < body.length; i++) {
+
+                    console.log('got here ' + body[i]);
+                    return;
+
                     // construct company object,
-                    let newName = body[i].name || '';
-                    let newInfo = body[i].category || '';
-                    // apparently "callback" is undefined somewhere and starting some crashing
-                    // let newPhone = body[i].callback.phone || '';
-                    let newPhone = '';
-                    if (body[i].contactMethods) {
-                        for (let j = 0; j < body[i].contactMethods.length; j++) {
-                            if (body[i].contactMethods[j].type === "phone") {
-                                newPhone = body[i].contactMethods[j].target;
-                            };
-                        };
-                    }
-                    //format phone# for international format
-                    if (newPhone) {
-                        newPhone = phoneFormatter.format(newPhone, "+1NNNNNNNNNN");
-                    };
-                    let newCompany = new Company(newName, newInfo, newPhone);
-                    // push object into Companies array
-                    console.log("Company info extracted from API: " + newCompany);
-                    companies.push(newCompany);
+                    // let newName = body[i].name || '';
+                    // let newInfo = body[i].category || '';
+                    // // apparently "callback" is undefined somewhere and starting some crashing
+                    // // let newPhone = body[i].callback.phone || '';
+                    // let newPhone = '';
+                    // if (body[i].contactMethods) {
+                    //     for (let j = 0; j < body[i].contactMethods.length; j++) {
+                    //         if (body[i].contactMethods[j].type === "phone") {
+                    //             newPhone = body[i].contactMethods[j].target;
+                    //         };
+                    //     };
+                    // }
+                    // //format phone# for international format
+                    // if (newPhone) {
+                    //     newPhone = phoneFormatter.format(newPhone, "+1NNNNNNNNNN");
+                    // };
+                    // let newCompany = new Company(newName, newInfo, newPhone);
+                    // // push object into Companies array
+                    // console.log("Company info extracted from API: " + newCompany);
+                    // companies.push(newCompany);
                 };
-                console.log("Formatted companies array: " + companies);
+                // console.log("Formatted companies array: " + companies);
                 // call a function to iterate over 'companies' and send back formatted cards
 
               } else if (error) {
