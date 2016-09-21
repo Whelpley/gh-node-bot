@@ -137,7 +137,11 @@ function sendAllCompanyCards(sender, companies) {
                 "title": "Solve My Problem"
             }],
         };
-        allElements.push(singleElement);
+        // cheap hack to limit number of cards displayed
+        // later: chunk it out in waves
+        if (allElements.length < 5) {
+            allElements.push(singleElement);
+        }
     };
 
     console.log("All of the elements of the cards: " + allElements);
