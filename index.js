@@ -87,13 +87,14 @@ app.post('/webhook/', function (req, res) {
                 };
                 console.log("Formatted companies array: " + companies);
                 // call a function to iterate over 'companies' and send back formatted cards
+                sendAllCompanyCards(sender, companies);
 
               } else if (error) {
                 console.log(error);
               }
             })
 
-            // sendAllCompanyCards(sender);
+            sendAllCompanyCards(sender);
 
           // // bounces back Generic template cards
           // if (text === 'Generic') {
@@ -125,54 +126,59 @@ app.post('/webhook/', function (req, res) {
     res.sendStatus(200)
 })
 
-// function sendAllCompanyCards(sender) {
+function sendAllCompanyCards(sender, companies) {
 
-//     // first, displaying a single card
-//     let company = companyInfo[0];
-//     let companyName = Object.keys(companyInfo)[0] || '';
-//     console.log("company name is: " + companyName);
-//     let contactName = companyInfo[companyName].contactInfo.contactName || '';
-//     let phone = companyInfo[companyName].contactInfo.phone || '';
-//     //wrap it all up in one card
-//     let singleElement = {
-//                     "title": companyName,
-//                     "subtitle": "You want to talk to " + contactName + " to fix your issue.",
-//                     "buttons": [{
-//                         "type": "phone_number",
-//                         "title": "Call " + companyName,
-//                         "payload": phone
-//                     }, {
-//                         "type": "web_url",
-//                         "url": "https://gethuman.com",
-//                         "title": "Solve My Problem"
-//                     }],
-//                 }
+    let allElements = [];
 
-//     let messageData = {
-//         "attachment": {
-//             "type": "template",
-//             "payload": {
-//                 "template_type": "generic",
-//                 "elements": [singleElement]
-//             }
-//         }
-//     }
-//     request({
-//         url: 'https://graph.facebook.com/v2.6/me/messages',
-//         qs: {access_token:token},
-//         method: 'POST',
-//         json: {
-//             recipient: {id:sender},
-//             message: messageData,
-//         }
-//     }, function(error, response, body) {
-//         if (error) {
-//             console.log('Error sending messages: ', error)
-//         } else if (response.body.error) {
-//             console.log('Error: ', response.body.error)
-//         }
-//     })
-// }
+    //iterate over companies, make single cards, push into allElements
+    for (let i = 0; i < companies.length; i++) {
+        let name = companies[i].name || '';
+        let info = companies[i].info || '';
+        let phone = companies[i].phone || '';
+        // wrap it all up in one card
+        let singleElement = {
+            "title": name,
+            "subtitle": info,
+            "buttons": [{
+                "type": "phone_number",
+                "title": "Call " + companyName,
+                "payload": phone
+            }, {
+                "type": "web_url",
+                "url": "https://gethuman.com",
+                "title": "Solve My Problem"
+            }],
+        };
+        allElements.push(singleElement);
+    };
+
+    console.log(allElements);
+
+    let messageData = {
+        "attachment": {
+            "type": "template",
+            "payload": {
+                "template_type": "generic",
+                "elements": allElements
+            }
+        }
+    }
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:token},
+        method: 'POST',
+        json: {
+            recipient: {id:sender},
+            message: messageData,
+        }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        }
+    })
+}
 
 function sendTextMessage(sender, text) {
     let messageData = { text:text }
