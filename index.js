@@ -41,6 +41,7 @@ app.post('/webhook/', function (req, res) {
         let sender = event.sender.id
 
         if (event.message && event.message.text) {
+
             let text = event.message.text;
             let companies = [];
             function Company(name, info, phone) {
@@ -58,31 +59,19 @@ app.post('/webhook/', function (req, res) {
               if (!error && response.statusCode == 200) {
                 let parsedBody = JSON.parse(body);
                 console.log("Full API response: " + parsedBody);
-                // harvest the company info from body of response,
-                for (let i=0; i < parsedBody.length; i++) {
 
+                for (let i=0; i < parsedBody.length; i++) {
                     // construct company object,
                     let newName = parsedBody[i].name || '';
-                    // console.log("Company #" + i + ": " + newName);
                     let newInfo = parsedBody[i].category || '';
                     let newPhone = parsedBody[i].callback.phone || '';
-
-                    // let newPhone = '';
-                    // if (body[i].contactMethods) {
-                    //     for (let j = 0; j < body[i].contactMethods.length; j++) {
-                    //         if (body[i].contactMethods[j].type === "phone") {
-                    //             newPhone = body[i].contactMethods[j].target;
-                    //         };
-                    //     };
-                    // }
-
                     //format phone# for international format
                     if (newPhone) {
                         newPhone = phoneFormatter.format(newPhone, "+1NNNNNNNNNN");
                     };
                     let newCompany = new Company(newName, newInfo, newPhone);
                     // push object into Companies array
-                    console.log("Company info for " + newName + ": " + newCompany);
+                    console.log("Company # " + i + ": " + newName + ": " + newCompany);
                     companies.push(newCompany);
                 };
                 console.log("Formatted companies array: " + companies);
@@ -94,7 +83,6 @@ app.post('/webhook/', function (req, res) {
               }
             })
 
-            sendAllCompanyCards(sender);
 
           // // bounces back Generic template cards
           // if (text === 'Generic') {
@@ -152,7 +140,7 @@ function sendAllCompanyCards(sender, companies) {
         allElements.push(singleElement);
     };
 
-    console.log(allElements);
+    console.log("All of the elements of the cards: " + allElements);
 
     let messageData = {
         "attachment": {
@@ -162,7 +150,7 @@ function sendAllCompanyCards(sender, companies) {
                 "elements": allElements
             }
         }
-    }
+    };
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token:token},
