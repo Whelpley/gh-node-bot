@@ -33,46 +33,54 @@ app.get('/webhook/', function (req, res) {
 //how does this remember a conversation thread?
 
 app.post('/webhook/', function (req, res) {
-  let messaging_events = req.body.entry[0].messaging
-  for (let i = 0; i < messaging_events.length; i++) {
-    let event = req.body.entry[0].messaging[i]
-    let sender = event.sender.id
+    // dealing with
+    if (req.query['hub.verify_token'] === 'my_voice_is_my_password_verify_me') {
+        console.log("Facebook just tried to verify token")
+        res.send(req.query['hub.challenge'])
+    }
+    // res.send('Error, wrong token')
 
-    if (event.message && event.message.text) {
-      let text = event.message.text;
+    //where all responses to text inputs are handled
+    let messaging_events = req.body.entry[0].messaging
+    for (let i = 0; i < messaging_events.length; i++) {
+        let event = req.body.entry[0].messaging[i]
+        let sender = event.sender.id
 
-      //echoes back everything sent
-      sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
+        if (event.message && event.message.text) {
+          let text = event.message.text;
 
-      sendAllCompanyCards(sender);
+          //echoes back everything sent
+          sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
-      // // bounces back Generic template cards
-      // if (text === 'Generic') {
-      //     sendGenericMessage(sender)
-      //     continue
-      // }
+          sendAllCompanyCards(sender);
 
-      // //bounces back single company name with test card
-      // let companyNames = Object.keys(companyInfo);
-      // // match text var to companies list
-      // for (let i = 0; i < companyNames.length; i++) {
-      //   if (text === companyNames[i]) {
-      //     let singleCompanyInfo = companyInfo[text];
-      //     sendTestStructuredMessage(sender, text, singleCompanyInfo);
-      //     continue
-      //   }
-      // };
+          // // bounces back Generic template cards
+          // if (text === 'Generic') {
+          //     sendGenericMessage(sender)
+          //     continue
+          // }
+
+          // //bounces back single company name with test card
+          // let companyNames = Object.keys(companyInfo);
+          // // match text var to companies list
+          // for (let i = 0; i < companyNames.length; i++) {
+          //   if (text === companyNames[i]) {
+          //     let singleCompanyInfo = companyInfo[text];
+          //     sendTestStructuredMessage(sender, text, singleCompanyInfo);
+          //     continue
+          //   }
+          // };
+
+        }
+
+        // //dealing with Postbacks
+        // if (event.postback) {
+        //   let text = JSON.stringify(event.postback);
+        //   sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
+        //   continue
+        // }
 
     }
-
-    // //dealing with Postbacks
-    // if (event.postback) {
-    //   let text = JSON.stringify(event.postback);
-    //   sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
-    //   continue
-    // }
-
-  }
   res.sendStatus(200)
 })
 
