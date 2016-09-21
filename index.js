@@ -56,15 +56,16 @@ app.post('/webhook/', function (req, res) {
             //punch up GH API with user text input
             request('https://api.gethuman.co/v3/companies/search?match=' + text, function (error, response, body) {
               if (!error && response.statusCode == 200) {
-                console.log("Full API response: " + body)
+                parsedBody = Json.parse(body);
+                console.log("Full API response: " + parsedBody)
                 // harvest the company info from body of response,
-                for (let i=0; i < body.length; i++) {
+                for (let i=0; i < parsedBody.length; i++) {
 
                     // console.log('got here ' + body[i]);
                     // return;
 
                     // construct company object,
-                    let newName = body[i].name || '';
+                    let newName = parsedBody[i].name || '';
                     console.log("Company #" + i + ": " + newName);
                     // let newInfo = body[i].category || '';
                     // // apparently "callback" is undefined somewhere and starting some crashing
