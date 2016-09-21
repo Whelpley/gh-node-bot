@@ -66,10 +66,10 @@ app.post('/webhook/', function (req, res) {
                     // let newPhone = body[i].callback.phone || '';
                     let newPhone = '';
                     if (body[i].contactMethods) {
-                        for (var i = 0; i < body[i].contactMethods.length; i++) {
-                            if (body[i].contactMethods.type === "phone") {
-                                newPhone = body[i].contactMethods.target;
-                            }
+                        for (let j = 0; j < body[i].contactMethods.length; j++) {
+                            if (body[i].contactMethods[j].type === "phone") {
+                                newPhone = body[i].contactMethods[j].target;
+                            };
                         };
                     }
                     //format phone# for international format
