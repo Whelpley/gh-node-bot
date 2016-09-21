@@ -141,7 +141,7 @@ function sendAllCompanyCards(sender, companies) {
             "subtitle": info,
             "buttons": [{
                 "type": "phone_number",
-                "title": "Call " + companyName,
+                "title": "Call " + name,
                 "payload": phone
             }, {
                 "type": "web_url",
