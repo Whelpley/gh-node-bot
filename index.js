@@ -4,9 +4,9 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
-const phone = require('phone');
+const phoneConverter = require('phone');
 
-const companyInfo = require('./companyinfo.js');
+// const companyInfo = require('./companyinfo.js');
 
 const token = process.env.FB_PAGE_ACCESS_TOKEN
 const GH_token = process.env.GH_API_ACCESS_TOKEN
@@ -62,9 +62,11 @@ app.post('/webhook/', function (req, res) {
                     // construct company object,
                     let newName = body[i].name;
                     let newInfo = body[i].category;
-                    let newPhoneRaw = body[i].callback.phone;
+                    let newPhone = body[i].callback.phone || '';
                     //format phone# for international format
-                    let newPhone = phone(newPhoneRaw)[0];
+                    if (newPhone) {
+                        newPhone = phoneConverter(newPhoneRaw)[0];
+                    };
                     let newCompany = new Company(newName, newInfo, newPhone);
                     // push object into Companies array
                     companies.push(newCompany);
