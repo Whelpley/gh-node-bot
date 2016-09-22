@@ -44,6 +44,7 @@ app.post('/webhook/', function (req, res) {
 
             let text = event.message.text;
             let companies = [];
+            // should this function declaration exist elsewhere?
             function Company(name, phone, email) {
               this.name = name;
               this.phone = phone;
@@ -92,9 +93,9 @@ app.post('/webhook/', function (req, res) {
         }
 
         if (event.postback) {
-          // (test message verify button)
-          // let text = JSON.stringify(event.postback);
-          // sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
+          // (test message verify button - echoes postback payload)
+          let text = JSON.stringify(event.postback);
+          sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
 
           let payloadText = event.postback.payload;
           sendDummyCard(sender, payloadText);
@@ -112,7 +113,7 @@ function sendDummyCard(sender, text) {
     let singleElement = {
         "title": "Dummy Card!",
         // what to display if no email or phone available?
-        "subtitle": text,
+        "subtitle": "This will show a solution for " + text,
         // "buttons": [{
         //     "type": "postback",
         //     "title": "Guides",
@@ -175,7 +176,7 @@ function sendAllCompanyCards(sender, companies) {
             "buttons": [{
                 "type": "postback",
                 "title": "Guides",
-                "payload": "This will be a solutions guide - 80 character limit!",
+                "payload": name,
             }, {
                 "type": "web_url",
                 "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
@@ -191,42 +192,7 @@ function sendAllCompanyCards(sender, companies) {
                 "payload": phoneIntl
             })
         };
-        // if (phoneIntl) {
-        //     singleElement = {
-        //         "title": name,
-        //         "subtitle": phone + ",\n" + email,
-        //         "image_url": image,
-        //         "buttons": [{
-        //             "type": "phone_number",
-        //             "title": "Call " + name,
-        //             "payload": phoneIntl
-        //         }, {
-        //             "type": "postback",
-        //             "title": "Guides",
-        //             "payload": "This will be a solutions guide - 80 character limit!",
-        //         }, {
-        //             "type": "web_url",
-        //             "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
-        //             "title": "Solve - $20"
-        //         }],
-        //     };
-        // } else {
-        //     singleElement = {
-        //         "title": name,
-        //         // what to display if no email or phone available?
-        //         "subtitle": email,
-        //         "image_url": image,
-        //         "buttons": [{
-        //             "type": "postback",
-        //             "title": "Guides",
-        //             "payload": "This will be a solutions guide - 80 character limit!",
-        //         }, {
-        //             "type": "web_url",
-        //             "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
-        //             "title": "Solve - $20"
-        //         }],
-        //     };
-        // };
+
         // cheap hack to limit number of cards displayed
         // later: chunk it out in waves
         if (allElements.length < 5) {
