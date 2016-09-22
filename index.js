@@ -74,7 +74,7 @@ app.post('/webhook/', function (req, res) {
                         return method.type === "email";
                     });
                     if (emailObject) {
-                        console.log("Email Object found: " + emailObject)
+                        console.log("Email Object found: " + JSON.stringify(emailObject));
                     };
                     // if found, set
                     let newEmail = (emailObject) ? emailObject.target:'';
