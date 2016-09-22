@@ -108,7 +108,7 @@ function sendDummyCard(sender, text) {
     let allElements = [];
 
     let singleElement = {
-        "title": Dummy Card!,
+        "title": "Dummy Card!",
         // what to display if no email or phone available?
         "subtitle": text,
         // "buttons": [{
@@ -179,7 +179,7 @@ function sendAllCompanyCards(sender, companies) {
                 }, {
                     "type": "postback",
                     "title": "Guides",
-                    "payload": "This will be a solutions guide",
+                    "payload": "This will be a solutions guide - 80 character limit!",
                 }, {
                     "type": "web_url",
                     "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
@@ -195,7 +195,7 @@ function sendAllCompanyCards(sender, companies) {
                 "buttons": [{
                     "type": "postback",
                     "title": "Guides",
-                    "payload": "This will be a solutions guide",
+                    "payload": "This will be a solutions guide - 80 character limit!",
                 }, {
                     "type": "web_url",
                     "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
