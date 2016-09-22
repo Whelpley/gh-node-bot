@@ -56,7 +56,7 @@ app.post('/webhook/', function (req, res) {
             sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
             //punch up GH API with user text input
-            request('https://api.gethuman.co/v3/companies/search?match=' + encodeURIComponent(text), function (error, response, body) {
+            request('https://api.gethuman.co/v3/companies/search?limit=5&match=' + encodeURIComponent(text), function (error, response, body) {
               if (!error && response.statusCode == 200) {
                 let parsedBody = JSON.parse(body);
                 console.log("Full API response: " + parsedBody);
@@ -195,9 +195,10 @@ function sendAllCompanyCards(sender, companies) {
 
         // cheap hack to limit number of cards displayed
         // later: chunk it out in waves
-        if (allElements.length < 5) {
-            allElements.push(singleElement);
-        }
+        // if (allElements.length < 5) {
+        //     allElements.push(singleElement);
+        // }
+        allElements.push(singleElement);
     };
     // console.log("All of the elements of the cards: " + allElements);
     let messageData = {
