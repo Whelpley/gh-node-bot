@@ -94,12 +94,61 @@ app.post('/webhook/', function (req, res) {
         if (event.postback) {
           let text = JSON.stringify(event.postback);
           sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
+          let payloadText = event.postback.payload;
+          sendDummyCard(sender, payloadText);
           continue
         }
     }
 
     res.sendStatus(200)
 })
+
+function sendDummyCard(sender, text) {
+
+    let allElements = [];
+
+    let singleElement = {
+        "title": Dummy Card!,
+        // what to display if no email or phone available?
+        "subtitle": text,
+        // "buttons": [{
+        //     "type": "postback",
+        //     "title": "Guides",
+        //     "payload": "Payload for second element in a generic bubble",
+        // }, {
+        //     "type": "web_url",
+        //     "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
+        //     "title": "Solve - $20"
+        // }],
+    };
+
+    allElements.push(singleElement);
+
+    let messageData = {
+        "attachment": {
+            "type": "template",
+            "payload": {
+                "template_type": "generic",
+                "elements": allElements
+            }
+        }
+    };
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:token},
+        method: 'POST',
+        json: {
+            recipient: {id:sender},
+            message: messageData,
+        }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        }
+    })
+};
 
 function sendAllCompanyCards(sender, companies) {
 
@@ -130,7 +179,7 @@ function sendAllCompanyCards(sender, companies) {
                 }, {
                     "type": "postback",
                     "title": "Guides",
-                    "payload": "Payload for second element in a generic bubble",
+                    "payload": "This will be a solutions guide",
                 }, {
                     "type": "web_url",
                     "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
@@ -146,7 +195,7 @@ function sendAllCompanyCards(sender, companies) {
                 "buttons": [{
                     "type": "postback",
                     "title": "Guides",
-                    "payload": "Payload for second element in a generic bubble",
+                    "payload": "This will be a solutions guide",
                 }, {
                     "type": "web_url",
                     "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
