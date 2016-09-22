@@ -123,7 +123,7 @@ function sendAllCompanyCards(sender, companies) {
         let name = companies[i].name || '';
         let info = companies[i].info || '';
         let phone = companies[i].phone || '';
-        let image = "./imgs/logo-gethuman-left.png"
+        let image = "http://findicons.com/files/icons/2198/dark_glass/128/modem2.png"
         let singleElement = {}
 
         // wrap it all up in one card
