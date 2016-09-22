@@ -44,10 +44,10 @@ app.post('/webhook/', function (req, res) {
 
             let text = event.message.text;
             let companies = [];
-            function Company(name, info, phone) {
+            function Company(name, phone, email) {
               this.name = name;
-              this.info = info;
               this.phone = phone;
+              this.email = email
             };
 
             // echoes back everything sent
@@ -63,13 +63,20 @@ app.post('/webhook/', function (req, res) {
                 for (let i=0; i < parsedBody.length; i++) {
                     // construct company object,
                     let newName = parsedBody[i].name || '';
-                    let newInfo = parsedBody[i].category || '';
                     let newPhone = parsedBody[i].callback.phone || '';
                     //format phone# for international format
                     if (newPhone) {
                         newPhone = phoneFormatter.format(newPhone, "+1NNNNNNNNNN");
                     };
-                    let newCompany = new Company(newName, newInfo, newPhone);
+                    // filter GH array to find contactInfo
+                    // may have to check if array is empty before filtering
+                    let emailObject = parsedBody[i].contactMethods.filter(function ( method ) {
+                        return method.type === "email";
+                    });
+                    // if found, set
+                    let newEmail = (emailObject) ? emailObject.target:'';
+                    console.log("Harvested an email: " + newEmail);
+                    let newCompany = new Company(newName, newPhone, newEmail);
                     // push object into Companies array
                     console.log("Company # " + i + ": " + newName + ": " + newCompany);
                     companies.push(newCompany);
@@ -121,7 +128,7 @@ function sendAllCompanyCards(sender, companies) {
     //iterate over companies, make single cards, push into allElements
     for (let i = 0; i < companies.length; i++) {
         let name = companies[i].name || '';
-        let info = companies[i].info || '';
+        let email = companies[i].email || '';
         let phone = companies[i].phone || '';
         let image = "http://findicons.com/files/icons/2198/dark_glass/128/modem2.png"
         let singleElement = {}
@@ -133,7 +140,7 @@ function sendAllCompanyCards(sender, companies) {
         if (phone) {
             singleElement = {
                 "title": name,
-                "subtitle": info,
+                "subtitle": email,
                 "image_url": image,
                 "buttons": [{
                     "type": "phone_number",
@@ -148,7 +155,7 @@ function sendAllCompanyCards(sender, companies) {
         } else {
             singleElement = {
                 "title": name,
-                "subtitle": info,
+                "subtitle": email,
                 "image_url": image,
                 "buttons": [{
                     "type": "web_url",
