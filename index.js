@@ -92,8 +92,10 @@ app.post('/webhook/', function (req, res) {
         }
 
         if (event.postback) {
-          let text = JSON.stringify(event.postback);
-          sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
+          // (test message verify button)
+          // let text = JSON.stringify(event.postback);
+          // sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
+
           let payloadText = event.postback.payload;
           sendDummyCard(sender, payloadText);
           continue
@@ -164,45 +166,67 @@ function sendAllCompanyCards(sender, companies) {
         let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
         let image = "http://findicons.com/files/icons/2198/dark_glass/128/modem2.png"
         let singleElement = {}
-        // no phone link if phone is bad
-        // a better check: regex the phone # to ensure right format
-        // also: refactor "singleElement" to pare down code - push Call button into buttons array
-        if (phoneIntl) {
-            singleElement = {
-                "title": name,
-                "subtitle": phone + ",\n" + email,
-                "image_url": image,
-                "buttons": [{
-                    "type": "phone_number",
-                    "title": "Call " + name,
-                    "payload": phoneIntl
-                }, {
-                    "type": "postback",
-                    "title": "Guides",
-                    "payload": "This will be a solutions guide - 80 character limit!",
-                }, {
-                    "type": "web_url",
-                    "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
-                    "title": "Solve - $20"
-                }],
-            };
-        } else {
-            singleElement = {
-                "title": name,
-                // what to display if no email or phone available?
-                "subtitle": email,
-                "image_url": image,
-                "buttons": [{
-                    "type": "postback",
-                    "title": "Guides",
-                    "payload": "This will be a solutions guide - 80 character limit!",
-                }, {
-                    "type": "web_url",
-                    "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
-                    "title": "Solve - $20"
-                }],
-            };
+
+        singleElement = {
+            "title": name,
+            // what to display if no email or phone available?
+            "subtitle": email,
+            "image_url": image,
+            "buttons": [{
+                "type": "postback",
+                "title": "Guides",
+                "payload": "This will be a solutions guide - 80 character limit!",
+            }, {
+                "type": "web_url",
+                "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
+                "title": "Solve - $20"
+            }],
         };
+        // if there is a valid phone # (needs stricter checks), add Call button
+        if (phoneIntl) {
+            singleElement.subtitle = phone + ",\n" + email,
+            singleElement.buttons.unshift({
+                "type": "phone_number",
+                "title": "Call " + name,
+                "payload": phoneIntl
+            })
+        };
+        // if (phoneIntl) {
+        //     singleElement = {
+        //         "title": name,
+        //         "subtitle": phone + ",\n" + email,
+        //         "image_url": image,
+        //         "buttons": [{
+        //             "type": "phone_number",
+        //             "title": "Call " + name,
+        //             "payload": phoneIntl
+        //         }, {
+        //             "type": "postback",
+        //             "title": "Guides",
+        //             "payload": "This will be a solutions guide - 80 character limit!",
+        //         }, {
+        //             "type": "web_url",
+        //             "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
+        //             "title": "Solve - $20"
+        //         }],
+        //     };
+        // } else {
+        //     singleElement = {
+        //         "title": name,
+        //         // what to display if no email or phone available?
+        //         "subtitle": email,
+        //         "image_url": image,
+        //         "buttons": [{
+        //             "type": "postback",
+        //             "title": "Guides",
+        //             "payload": "This will be a solutions guide - 80 character limit!",
+        //         }, {
+        //             "type": "web_url",
+        //             "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
+        //             "title": "Solve - $20"
+        //         }],
+        //     };
+        // };
         // cheap hack to limit number of cards displayed
         // later: chunk it out in waves
         if (allElements.length < 5) {
