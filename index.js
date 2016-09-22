@@ -55,7 +55,7 @@ app.post('/webhook/', function (req, res) {
             sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
             //punch up GH API with user text input
-            request('https://api.gethuman.co/v3/companies/search?match=' + text, function (error, response, body) {
+            request('https://api.gethuman.co/v3/companies/search?match=' + encodeURIComponent(text), function (error, response, body) {
               if (!error && response.statusCode == 200) {
                 let parsedBody = JSON.parse(body);
                 console.log("Full API response: " + parsedBody);
@@ -64,17 +64,18 @@ app.post('/webhook/', function (req, res) {
                     // construct company object,
                     let newName = parsedBody[i].name || '';
                     let newPhone = parsedBody[i].callback.phone || '';
+                    let newEmail = '';
                     // filter GH array to find contactInfo
                     // may have to check if array is empty before filtering
-                    let emailObject = parsedBody[i].contactMethods.filter(function ( method ) {
+                    let emailContactMethods = parsedBody[i].contactMethods.filter(function ( method ) {
                         return method.type === "email";
                     });
-                    // if (emailObject) {
-                    //     console.log("Email Object found: " + JSON.stringify(emailObject));
-                    // };
+                    if (emailContactMethods && emailContactMethods.length) {
+                        console.log("Email Object found: " + JSON.stringify(emailObject));
+                        newEmail = emailContactMethods[0].target;
+                    };
                     // if found, set
-                    // let newEmail = (emailObject) ? emailObject[0].target : '';
-                    let newEmail = 'jim@gmail.com';
+                    // let newEmail = 'jim@gmail.com';
 
                     // console.log("Harvested an email: " + newEmail);
                     let newCompany = new Company(newName, newPhone, newEmail);
