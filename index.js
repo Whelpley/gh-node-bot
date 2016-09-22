@@ -59,57 +59,36 @@ app.post('/webhook/', function (req, res) {
               if (!error && response.statusCode == 200) {
                 let parsedBody = JSON.parse(body);
                 console.log("Full API response: " + parsedBody);
-
+                // iterate over API response, construct company object
                 for (let i=0; i < parsedBody.length; i++) {
-                    // construct company object,
                     let newName = parsedBody[i].name || '';
                     let newPhone = parsedBody[i].callback.phone || '';
                     let newEmail = '';
                     // filter GH array to find contactInfo
-                    // may have to check if array is empty before filtering
                     let emailContactMethods = parsedBody[i].contactMethods.filter(function ( method ) {
                         return method.type === "email";
                     });
                     if (emailContactMethods && emailContactMethods.length) {
-                        console.log("Email Object found: " + JSON.stringify(emailContactMethods));
+                        // console.log("Email Object found: " + JSON.stringify(emailContactMethods));
                         newEmail = emailContactMethods[0].target;
                     };
-                    // if found, set
-                    // let newEmail = 'jim@gmail.com';
-
-                    console.log("Harvested an email: " + newEmail);
+                    // console.log("Harvested an email: " + newEmail);
                     let newCompany = new Company(newName, newPhone, newEmail);
                     // push object into Companies array
-                    console.log("Company # " + i + ": " + newName + ": " + newCompany);
+                    // console.log("Company # " + i + ": " + newName + ": " + newCompany);
                     companies.push(newCompany);
                 };
-                console.log("Formatted companies array: " + companies);
-
+                // console.log("Formatted companies array: " + companies);
                 sendAllCompanyCards(sender, companies);
-
               } else if (error) {
                 console.log(error);
               }
             })
-
-
           // // bounces back Generic template cards
           // if (text === 'Generic') {
           //     sendGenericMessage(sender)
           //     continue
           // }
-
-          // //bounces back single company name with test card
-          // let companyNames = Object.keys(companyInfo);
-          // // match text var to companies list
-          // for (let i = 0; i < companyNames.length; i++) {
-          //   if (text === companyNames[i]) {
-          //     let singleCompanyInfo = companyInfo[text];
-          //     sendTestStructuredMessage(sender, text, singleCompanyInfo);
-          //     continue
-          //   }
-          // };
-
         }
 
         // //dealing with Postbacks
@@ -127,7 +106,8 @@ function sendAllCompanyCards(sender, companies) {
 
     let allElements = [];
 
-    //iterate over companies, make single cards, push into allElements
+    // iterate over companies, make single cards, push into allElements
+    // for better performance, pare down companies to most relevant before this step
     for (let i = 0; i < companies.length; i++) {
         let name = companies[i].name || '';
         let email = companies[i].email || '';
@@ -136,11 +116,9 @@ function sendAllCompanyCards(sender, companies) {
         let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
         let image = "http://findicons.com/files/icons/2198/dark_glass/128/modem2.png"
         let singleElement = {}
-
-        // wrap it all up in one card
         // no phone link if phone is bad
         // a better check: regex the phone # to ensure right format
-        // also: refactor "singleElement" to pare down code
+        // also: refactor "singleElement" to pare down code - push Call button into buttons array
         if (phoneIntl) {
             singleElement = {
                 "title": name,
@@ -152,8 +130,8 @@ function sendAllCompanyCards(sender, companies) {
                     "payload": phoneIntl
                 }, {
                     "type": "web_url",
-                    "url": "https://gethuman.com",
-                    "title": "Solve My Problem"
+                    "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
+                    "title": "Solve - $20"
                 }],
             };
         } else {
@@ -164,8 +142,8 @@ function sendAllCompanyCards(sender, companies) {
                 "image_url": image,
                 "buttons": [{
                     "type": "web_url",
-                    "url": "https://gethuman.com",
-                    "title": "Solve My Problem"
+                    "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
+                    "title": "Solve - $20"
                 }],
             };
         };
@@ -175,9 +153,7 @@ function sendAllCompanyCards(sender, companies) {
             allElements.push(singleElement);
         }
     };
-
-    console.log("All of the elements of the cards: " + allElements);
-
+    // console.log("All of the elements of the cards: " + allElements);
     let messageData = {
         "attachment": {
             "type": "template",
