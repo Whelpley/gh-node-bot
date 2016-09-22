@@ -71,13 +71,13 @@ app.post('/webhook/', function (req, res) {
                         return method.type === "email";
                     });
                     if (emailContactMethods && emailContactMethods.length) {
-                        console.log("Email Object found: " + JSON.stringify(emailObject));
+                        console.log("Email Object found: " + JSON.stringify(emailContactMethods));
                         newEmail = emailContactMethods[0].target;
                     };
                     // if found, set
                     // let newEmail = 'jim@gmail.com';
 
-                    // console.log("Harvested an email: " + newEmail);
+                    console.log("Harvested an email: " + newEmail);
                     let newCompany = new Company(newName, newPhone, newEmail);
                     // push object into Companies array
                     console.log("Company # " + i + ": " + newName + ": " + newCompany);
