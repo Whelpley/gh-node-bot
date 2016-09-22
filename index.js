@@ -91,12 +91,11 @@ app.post('/webhook/', function (req, res) {
           // }
         }
 
-        // //dealing with Postbacks
-        // if (event.postback) {
-        //   let text = JSON.stringify(event.postback);
-        //   sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
-        //   continue
-        // }
+        if (event.postback) {
+          let text = JSON.stringify(event.postback);
+          sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
+          continue
+        }
     }
 
     res.sendStatus(200)
@@ -129,6 +128,10 @@ function sendAllCompanyCards(sender, companies) {
                     "title": "Call " + name,
                     "payload": phoneIntl
                 }, {
+                    "type": "postback",
+                    "title": "Guides",
+                    "payload": "Payload for second element in a generic bubble",
+                }, {
                     "type": "web_url",
                     "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
                     "title": "Solve - $20"
@@ -141,6 +144,10 @@ function sendAllCompanyCards(sender, companies) {
                 "subtitle": email,
                 "image_url": image,
                 "buttons": [{
+                    "type": "postback",
+                    "title": "Guides",
+                    "payload": "Payload for second element in a generic bubble",
+                }, {
                     "type": "web_url",
                     "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
                     "title": "Solve - $20"
