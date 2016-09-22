@@ -73,7 +73,7 @@ app.post('/webhook/', function (req, res) {
                     let emailObject = parsedBody[i].contactMethods.filter(function ( method ) {
                         return method.type === "email";
                     });
-                    if (emailOject) {
+                    if (emailObject) {
                         console.log("Email Object found: " + emailObject)
                     };
                     // if found, set
