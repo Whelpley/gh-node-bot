@@ -64,10 +64,6 @@ app.post('/webhook/', function (req, res) {
                     // construct company object,
                     let newName = parsedBody[i].name || '';
                     let newPhone = parsedBody[i].callback.phone || '';
-                    //format phone# for international format
-                    if (newPhone) {
-                        newPhone = phoneFormatter.format(newPhone, "+1NNNNNNNNNN");
-                    };
                     // filter GH array to find contactInfo
                     // may have to check if array is empty before filtering
                     let emailObject = parsedBody[i].contactMethods.filter(function ( method ) {
@@ -87,7 +83,7 @@ app.post('/webhook/', function (req, res) {
                     companies.push(newCompany);
                 };
                 console.log("Formatted companies array: " + companies);
-                // call a function to iterate over 'companies' and send back formatted cards
+
                 sendAllCompanyCards(sender, companies);
 
               } else if (error) {
@@ -135,6 +131,8 @@ function sendAllCompanyCards(sender, companies) {
         let name = companies[i].name || '';
         let email = companies[i].email || '';
         let phone = companies[i].phone || '';
+        //format phone# for international format
+        let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
         let image = "http://findicons.com/files/icons/2198/dark_glass/128/modem2.png"
         let singleElement = {}
 
@@ -142,7 +140,7 @@ function sendAllCompanyCards(sender, companies) {
         // no phone link if phone is bad
         // a better check: regex the phone # to ensure right format
         // also: refactor "singleElement" to pare down code
-        if (phone) {
+        if (phoneIntl) {
             singleElement = {
                 "title": name,
                 "subtitle": phone + ",\n" + email,
@@ -150,7 +148,7 @@ function sendAllCompanyCards(sender, companies) {
                 "buttons": [{
                     "type": "phone_number",
                     "title": "Call " + name,
-                    "payload": phone
+                    "payload": phoneIntl
                 }, {
                     "type": "web_url",
                     "url": "https://gethuman.com",
@@ -160,6 +158,7 @@ function sendAllCompanyCards(sender, companies) {
         } else {
             singleElement = {
                 "title": name,
+                // what to display if no email or phone available?
                 "subtitle": email,
                 "image_url": image,
                 "buttons": [{
@@ -271,68 +270,6 @@ function sendTextMessage(sender, text) {
 //         }
 //     })
 // }
-
-
-// function sendTestStructuredMessage(sender, text, singleCompanyInfo) {
-//     let companyName = text;
-//     let contactInfo = singleCompanyInfo.contactInfo;
-//     let issues = singleCompanyInfo.issues;
-//     let solutions = singleCompanyInfo.solutions;
-
-//     let messageData = {
-//         "attachment": {
-//             "type": "template",
-//             "payload": {
-//                 "template_type": "generic",
-//                 "elements": [{
-//                     "title": "Issue #1: " + issues[0],
-//                     "subtitle": "Solution: " + solutions[0],
-//                     "image_url": "http://messengerdemo.parseapp.com/img/rift.png",
-//                     "buttons": [{
-//                         "type": "web_url",
-//                         "url": "https://gethuman.com",
-//                         "title": "Contact GetHuman for help"
-//                     },
-//                     {
-//                         "type": "web_url",
-//                         "url": "www.theonion.com",
-//                         "title": "Go read The Onion instead"
-//                     },
-//                     {
-//                         "type": "postback",
-//                         "title": "Postback",
-//                         "payload": "Payload for first element in a generic bubble",
-//                     }],
-//                 }, {
-//                     "title": "Second card",
-//                     "subtitle": "Element #2 of an hscroll",
-//                     "image_url": "http://messengerdemo.parseapp.com/img/gearvr.png",
-//                     "buttons": [{
-//                         "type": "postback",
-//                         "title": "Get contact info for " + companyName,
-//                         "payload": "Payload for second element in a generic bubble",
-//                     }],
-//                 }]
-//             }
-//         }
-//     }
-//     request({
-//         url: 'https://graph.facebook.com/v2.6/me/messages',
-//         qs: {access_token:token},
-//         method: 'POST',
-//         json: {
-//             recipient: {id:sender},
-//             message: messageData,
-//         }
-//     }, function(error, response, body) {
-//         if (error) {
-//             console.log('Error sending messages: ', error)
-//         } else if (response.body.error) {
-//             console.log('Error: ', response.body.error)
-//         }
-//     })
-// }
-
 
 // Spin up the server
 app.listen(app.get('port'), function() {
