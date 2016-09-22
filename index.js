@@ -73,12 +73,12 @@ app.post('/webhook/', function (req, res) {
                     let emailObject = parsedBody[i].contactMethods.filter(function ( method ) {
                         return method.type === "email";
                     });
-                    if (emailObject) {
-                        console.log("Email Object found: " + JSON.stringify(emailObject));
-                    };
+                    // if (emailObject) {
+                    //     console.log("Email Object found: " + JSON.stringify(emailObject));
+                    // };
                     // if found, set
-                    let newEmail = (emailObject) ? emailObject[0].target : '';
-                    console.log("Harvested an email: " + newEmail);
+                    let newEmail = (emailObject) ? emailObject[0].target : 'jim@gmail.com';
+                    // console.log("Harvested an email: " + newEmail);
                     let newCompany = new Company(newName, newPhone, newEmail);
                     // push object into Companies array
                     console.log("Company # " + i + ": " + newName + ": " + newCompany);
@@ -143,7 +143,7 @@ function sendAllCompanyCards(sender, companies) {
         if (phone) {
             singleElement = {
                 "title": name,
-                "subtitle": email,
+                "subtitle": phone + ",\n" + email,
                 "image_url": image,
                 "buttons": [{
                     "type": "phone_number",
