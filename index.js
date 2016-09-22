@@ -123,15 +123,18 @@ function sendAllCompanyCards(sender, companies) {
         let name = companies[i].name || '';
         let info = companies[i].info || '';
         let phone = companies[i].phone || '';
+        let image = "./imgs/logo-gethuman-left.png"
         let singleElement = {}
 
         // wrap it all up in one card
         // no phone link if phone is bad
         // a better check: regex the phone # to ensure right format
+        // also: refactor "singleElement" to pare down code
         if (phone) {
             singleElement = {
                 "title": name,
                 "subtitle": info,
+                "image_url": image,
                 "buttons": [{
                     "type": "phone_number",
                     "title": "Call " + name,
@@ -146,6 +149,7 @@ function sendAllCompanyCards(sender, companies) {
             singleElement = {
                 "title": name,
                 "subtitle": info,
+                "image_url": image,
                 "buttons": [{
                     "type": "web_url",
                     "url": "https://gethuman.com",
