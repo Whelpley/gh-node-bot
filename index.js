@@ -99,7 +99,7 @@ function requestQuestionCards(sender, text) {
             // load response object into questions array
             questions = JSON.parse(body);
             if (questions && questions.length) {
-                let responseText = "We found " + (questions.length + 1) + " relevant questions to your input.";
+                let responseText = "We found " + questions.length + " relevant questions to your input.";
                 sendTextMessage(sender, responseText);
                 console.log("All questions returned from API: " + questions);
 
@@ -117,7 +117,7 @@ function requestQuestionCards(sender, text) {
                     , function (error, response, body) {
                     if (!error && response.statusCode == 200) {
                         companyObjects = JSON.parse(body);
-                        responseText = "We found " + (companyObjects.length + 1) + " companies matching your questions.";
+                        responseText = "We found " + companyObjects.length + " companies matching your questions.";
                         sendTextMessage(sender, responseText);
                         console.log("All company Objects returned from API: " + companyObjects);
 
@@ -133,7 +133,7 @@ function requestQuestionCards(sender, text) {
                     , function (error, response, body) {
                     if (!error && response.statusCode == 200) {
                         guideObjects = JSON.parse(body);
-                        responseText = "We found " + (guideObjects.length + 1) + " guides matching your questions.";
+                        responseText = "We found " + guideObjects.length + " guides matching your questions.";
                         sendTextMessage(sender, responseText);
                         console.log("All guide Objects returned from API: " + guideObjects);
 
