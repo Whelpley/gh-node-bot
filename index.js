@@ -125,7 +125,7 @@ function requestQuestionCards(sender, text) {
                         for (var i = 0; i < companyObjects.length; i++) {
                             companyTable[companyObjects[i]._id] = companyObjects[i]
                         };
-                        console.log("All company Objects returned from API: " + companyTable);
+                        console.log("All company Objects returned from API: " + JSON.stringify(companyTable));
 
                     } else if (error) {
                     console.log(error);
@@ -145,16 +145,20 @@ function requestQuestionCards(sender, text) {
                         for (var i = 0; i < guideObjects.length; i++) {
                             guideTable[guideObjects[i]._id] = guideObjects[i]
                         };
-                        console.log("All guide Objects returned from API: " + guideTable);
+                        console.log("All guide Objects returned from API: " + JSON.stringify(guideTable));
                     } else if (error) {
                     console.log(error);
                   }
                 });
 
                 // attach Companies and Guides to Questions
+                // for (var i = 0; i < questions.length; i++) {
+                //     questions[i].
+                // };
 
                 // Make cards out of massive data hash
                 // (room for optimization later! too much data being shuffled around)
+                // sendAllQuestionCards(sender, questions);
 
             } else {
                 let responseText = "We could not find a matching question to your input, displaying relevant companies instead:";
@@ -243,6 +247,10 @@ function sendDummyCard(sender, payloadText) {
             console.log('Error: ', response.body.error)
         }
     })
+};
+
+function sendAllQuestionCards(sender, questions) {
+    console.log("All the question cards will be sent at this step.");
 };
 
 function sendAllCompanyCards(sender, companies) {
