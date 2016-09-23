@@ -119,12 +119,8 @@ function requestQuestionCards(sender, text) {
                         for (let i = 0; i < companyObjects.length; i++) {
                             companyTable[companyObjects[i]._id] = companyObjects[i]
                         };
-                        console.log("All company Objects returned from API: " + JSON.stringify(companyTable));
-                        console.log("HELLO!!! IS THIS WORKING?")
-
+                        // console.log("All company Objects returned from API: " + JSON.stringify(companyTable));
                     } else if (error) {
-                    console.log("OK there was an error getting the companies")
-
                     console.log(error);
                   }
                 });
@@ -150,9 +146,9 @@ function requestQuestionCards(sender, text) {
                 // attach Companies and Guides to Questions
                 for (var i = 0; i < questions.length; i++) {
                     let cID = questions[i].companyId;
-                    questions[i].company = companyTable.cID;
+                    questions[i].company = companyTable[cID];
                     let gID = questions[i].guideId;
-                    questions[i].guide = guideTable.gID;
+                    questions[i].guide = guideTable[gID];
                 };
                 // Make cards out of massive data hash
                 // (room for optimization later! too much data being shuffled around!)
@@ -257,6 +253,7 @@ function sendAllQuestionCards(sender, questions) {
         let urlId = questions[i].urlId || '';
         console.log("Company info for " + companyName + ": " + JSON.stringify(questions[i].company));
         let phone = (questions[i].company) ? questions[i].company.callback.phone : '';
+        console.log("Phone info for " + companyName + ": " + phone);
         //format phone# for international format
         let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
         let title = questions[i].title || '';
