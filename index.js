@@ -78,6 +78,11 @@ app.post('/webhook/', function (req, res) {
 
 function requestQuestionCards(sender, text) {
     let questions = [];
+    let companyIDs = [];
+    let guideIDs = [];
+    let companyObjects = [];
+    let guideObjects = [];
+
     let filters = {
         type: 'question',
         isGuide: true
@@ -94,9 +99,49 @@ function requestQuestionCards(sender, text) {
             // load response object into questions array
             questions = JSON.parse(body);
             if (questions && questions.length) {
-                let responseText = "We found " + (questions.length + 1) + "relevant questions to your input.";
+                let responseText = "We found " + (questions.length + 1) + " relevant questions to your input.";
                 sendTextMessage(sender, responseText);
-                console.log(questions);
+                console.log("All questions returned from API: " + questions);
+
+                for (let i = 0; i < questions.length; i++) {
+                    companyIDs.push(questions[i].companyId);
+                    guideIDs.push(questions[i].guideId);
+                };
+                console.log("Company ID's: " + companyIDs);
+                console.log("Guide ID's: " + guideIDs);
+
+                // make hash table of companyID: company Objects
+                // currently just an array of them, not a hash table
+                request('https://api.gethuman.co/v3/companies?where='
+                    + encodeURIComponent(JSON.stringify({ _id: { $in: companyIDs }}))
+                    , function (error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        companyObjects = JSON.parse(body);
+                        responseText = "We found " + (companyObjects.length + 1) + " companies matching your questions.";
+                        sendTextMessage(sender, responseText);
+                        console.log("All company Objects returned from API: " + companyObjects);
+
+                    } else if (error) {
+                    console.log(error);
+                  }
+                });
+
+                // make hash table of guideID: question Objects
+                // currently just an array of them, not a hash table
+                request('https://api.gethuman.co/v3/companies?where='
+                    + encodeURIComponent(JSON.stringify({ _id: { $in: questionIDs }}))
+                    , function (error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        guideObjects = JSON.parse(body);
+                        responseText = "We found " + (guideObjects.length + 1) + " guides matching your questions.";
+                        sendTextMessage(sender, responseText);
+                        console.log("All guide Objects returned from API: " + guideObjects);
+
+                    } else if (error) {
+                    console.log(error);
+                  }
+                });
+
             } else {
                 let responseText = "We could not find a matching question to your input, displaying relevant companies instead:";
                 sendTextMessage(sender, responseText);
