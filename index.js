@@ -252,6 +252,7 @@ function sendAllQuestionCards(sender, questions) {
     for (let i = 0; i < questions.length; i++) {
         let companyName = questions[i].companyName || '';
         let urlId = questions[i].urlId || '';
+        console.log("Phone info for " + companyName + ": " + JSON.stringify(questions[i].company.callback));
         let phone = (questions[i].company) ? questions[i].company.callback.phone : '';
         //format phone# for international format
         let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
