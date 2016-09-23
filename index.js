@@ -40,26 +40,19 @@ app.post('/webhook/', function (req, res) {
         let event = req.body.entry[0].messaging[i]
         let sender = event.sender.id
 
+        // handling text input
         if (event.message && event.message.text) {
-
             let text = event.message.text;
             let companies = [];
-            // should this function declaration exist elsewhere?
-            function Company(name, phone, email) {
-              this.name = name;
-              this.phone = phone;
-              this.email = email
-            };
-
             // echoes back everything sent
             // keep in development stage to confirm functionality of response
             sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
-            //punch up GH API with user text input
+            //punch up GH API (company search only) with user text input
             request('https://api.gethuman.co/v3/companies/search?limit=5&match=' + encodeURIComponent(text), function (error, response, body) {
               if (!error && response.statusCode == 200) {
                 let parsedBody = JSON.parse(body);
-                console.log("Full API response: " + parsedBody);
+                // console.log("Full API response: " + parsedBody);
                 // iterate over API response, construct company object
                 for (let i=0; i < parsedBody.length; i++) {
                     let newName = parsedBody[i].name || '';
@@ -92,6 +85,7 @@ app.post('/webhook/', function (req, res) {
           // }
         }
 
+        // handling postback buttons
         if (event.postback) {
           // test message verify button - echoes postback payload
           let text = JSON.stringify(event.postback);
@@ -107,9 +101,7 @@ app.post('/webhook/', function (req, res) {
 })
 
 function sendDummyCard(sender, payloadText) {
-
     let allElements = [];
-
     let singleElement = {
         "title": "Dummy Card!",
         // what to display if no email or phone available?
@@ -124,9 +116,7 @@ function sendDummyCard(sender, payloadText) {
         //     "title": "Solve - $20"
         // }],
     };
-
     allElements.push(singleElement);
-
     let messageData = {
         "attachment": {
             "type": "template",
@@ -220,6 +210,7 @@ function sendAllCompanyCards(sender, companies) {
     })
 }
 
+//sends a basic text message
 function sendTextMessage(sender, text) {
     let messageData = { text:text }
     request({
@@ -239,54 +230,12 @@ function sendTextMessage(sender, text) {
     })
 }
 
-// function sendGenericMessage(sender) {
-//     let messageData = {
-//         "attachment": {
-//             "type": "template",
-//             "payload": {
-//                 "template_type": "generic",
-//                 "elements": [{
-//                     "title": "First card",
-//                     "subtitle": "Element #1 of an hscroll",
-//                     "image_url": "http://messengerdemo.parseapp.com/img/rift.png",
-//                     "buttons": [{
-//                         "type": "web_url",
-//                         "url": "https://www.messenger.com",
-//                         "title": "web url"
-//                     }, {
-//                         "type": "postback",
-//                         "title": "Postback",
-//                         "payload": "Payload for first element in a generic bubble",
-//                     }],
-//                 }, {
-//                     "title": "Second card",
-//                     "subtitle": "Element #2 of an hscroll",
-//                     "image_url": "http://messengerdemo.parseapp.com/img/gearvr.png",
-//                     "buttons": [{
-//                         "type": "postback",
-//                         "title": "Postback",
-//                         "payload": "Payload for second element in a generic bubble",
-//                     }],
-//                 }]
-//             }
-//         }
-//     }
-//     request({
-//         url: 'https://graph.facebook.com/v2.6/me/messages',
-//         qs: {access_token:token},
-//         method: 'POST',
-//         json: {
-//             recipient: {id:sender},
-//             message: messageData,
-//         }
-//     }, function(error, response, body) {
-//         if (error) {
-//             console.log('Error sending messages: ', error)
-//         } else if (response.body.error) {
-//             console.log('Error: ', response.body.error)
-//         }
-//     })
-// }
+// should this function declaration exist elsewhere?
+function Company(name, phone, email) {
+  this.name = name;
+  this.phone = phone;
+  this.email = email
+};
 
 // Spin up the server
 app.listen(app.get('port'), function() {
