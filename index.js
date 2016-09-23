@@ -120,8 +120,11 @@ function requestQuestionCards(sender, text) {
                             companyTable[companyObjects[i]._id] = companyObjects[i]
                         };
                         console.log("All company Objects returned from API: " + JSON.stringify(companyTable));
+                        console.log("HELLO!!! IS THIS WORKING?")
 
                     } else if (error) {
+                    console.log("OK there was an error getting the companies")
+
                     console.log(error);
                   }
                 });
@@ -138,7 +141,7 @@ function requestQuestionCards(sender, text) {
                         for (let i = 0; i < guideObjects.length; i++) {
                             guideTable[guideObjects[i]._id] = guideObjects[i]
                         };
-                        console.log("All guide Objects returned from API: " + JSON.stringify(guideTable));
+                        // console.log("All guide Objects returned from API: " + JSON.stringify(guideTable));
                     } else if (error) {
                     console.log(error);
                   }
