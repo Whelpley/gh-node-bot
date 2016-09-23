@@ -54,11 +54,6 @@ app.post('/webhook/', function (req, res) {
             //search for Companies and send out info cards for each
             // requestCompanyCards(sender, text);
 
-          // // bounces back Generic template cards
-          // if (text === 'Generic') {
-          //     sendGenericMessage(sender)
-          //     continue
-          // }
         }
 
         // handling postback buttons
@@ -113,7 +108,6 @@ function requestQuestionCards(sender, text) {
                 console.log("Guide ID's: " + guideIDs);
 
                 // make hash table of companyID: company Objects
-                // currently just an array of them, not a hash table
                 request('https://api.gethuman.co/v3/companies?where='
                     + encodeURIComponent(JSON.stringify({ _id: { $in: companyIDs }}))
                     , function (error, response, body) {
@@ -122,7 +116,7 @@ function requestQuestionCards(sender, text) {
                         responseText = "We found " + companyObjects.length + " companies matching your questions.";
                         sendTextMessage(sender, responseText);
                         //make the hash table
-                        for (var i = 0; i < companyObjects.length; i++) {
+                        for (let i = 0; i < companyObjects.length; i++) {
                             companyTable[companyObjects[i]._id] = companyObjects[i]
                         };
                         console.log("All company Objects returned from API: " + JSON.stringify(companyTable));
@@ -133,8 +127,6 @@ function requestQuestionCards(sender, text) {
                 });
 
                 // make hash table of guideID: guide Objects
-                // currently just an array of them, not a hash table
-                // this is not turning up Guides for anybody!
                 request('https://api.gethuman.co/v3/guides?where='
                     + encodeURIComponent(JSON.stringify({ _id: { $in: guideIDs }}))
                     , function (error, response, body) {
@@ -143,7 +135,7 @@ function requestQuestionCards(sender, text) {
                         responseText = "We found " + guideObjects.length + " guides matching your questions.";
                         sendTextMessage(sender, responseText);
                         //make the hash table
-                        for (var i = 0; i < guideObjects.length; i++) {
+                        for (let i = 0; i < guideObjects.length; i++) {
                             guideTable[guideObjects[i]._id] = guideObjects[i]
                         };
                         console.log("All guide Objects returned from API: " + JSON.stringify(guideTable));
@@ -153,13 +145,15 @@ function requestQuestionCards(sender, text) {
                 });
 
                 // attach Companies and Guides to Questions
-                // for (var i = 0; i < questions.length; i++) {
-                //     questions[i].
-                // };
-
+                for (var i = 0; i < questions.length; i++) {
+                    let cID = questions[i].companyId;
+                    questions[i].company = companyTable.cID;
+                    let gID = questions[i].guideId;
+                    questions[i].guide = guideTable.gID;
+                };
                 // Make cards out of massive data hash
-                // (room for optimization later! too much data being shuffled around)
-                // sendAllQuestionCards(sender, questions);
+                // (room for optimization later! too much data being shuffled around!)
+                sendAllQuestionCards(sender, questions);
 
             } else {
                 let responseText = "We could not find a matching question to your input, displaying relevant companies instead:";
@@ -201,6 +195,7 @@ function requestCompanyCards(sender, text) {
         };
         // console.log("Formatted companies array: " + companies);
         sendAllCompanyCards(sender, companies);
+
       } else if (error) {
         console.log(error);
       }
@@ -252,13 +247,81 @@ function sendDummyCard(sender, payloadText) {
 
 function sendAllQuestionCards(sender, questions) {
     console.log("All the question cards will be sent at this step.");
+    let allElements = [];
+    // iterate over Questions, make single cards, push into allElements
+    for (let i = 0; i < questions.length; i++) {
+        let companyName = questions[i].companyName || '';
+        let urlId = questions[i].urlId || '';
+        let phone = questions[i].phone || '';
+        //format phone# for international format
+        let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
+        let title = questions[i].title || '';
+        // check if company name is in title already, add to front if not
+        if (title.indexof(companyName) < 0) {
+            title = companyName + ": " + title;
+        };
+        // truncate title
+        title = title.substring(0,79);
+        // dummy text for solutions for now
+        solutions = "Hit it with a hammer until it works better. Does it work yet? Good. You did real good, kid. You're a winner. Really. Now go home to your mother.";
+        solutions = solutions.substring(0,79);
+
+        let singleElement = {
+            "title": title,
+            "subtitle": solutions,
+            "buttons": [{
+                "type": "web_url",
+                "url": "https://answers.gethuman.co/_" + encodeURIComponent(urlId) ,
+                "title": "More Info"
+            }, {
+                "type": "web_url",
+                "url": "https://gethuman.com?company=" + encodeURIComponent(companyName) ,
+                "title": "Solve - $20"
+            }],
+        };
+        // if there is a valid phone # (needs stricter checks), add Call button
+        if (phoneIntl) {
+            singleElement.buttons.unshift({
+                "type": "phone_number",
+                "title": "Call " + companyName,
+                "payload": phoneIntl
+            })
+        };
+        allElements.push(singleElement);
+    };
+    // send it on!
+    // collapse this into a re-usable function (find duplicates)
+    let messageData = {
+        "attachment": {
+            "type": "template",
+            "payload": {
+                "template_type": "generic",
+                "elements": allElements
+            }
+        }
+    };
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:token},
+        method: 'POST',
+        json: {
+            recipient: {id:sender},
+            message: messageData,
+        }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        }
+    });
+
 };
 
 function sendAllCompanyCards(sender, companies) {
 
     let allElements = [];
     // iterate over companies, make single cards, push into allElements
-    // for better performance, pare down companies to most relevant before this step
     for (let i = 0; i < companies.length; i++) {
         let name = companies[i].name || '';
         let email = companies[i].email || '';
@@ -295,6 +358,7 @@ function sendAllCompanyCards(sender, companies) {
         allElements.push(singleElement);
     };
     // console.log("All of the elements of the cards: " + allElements);
+    // collapse this into a re-usable function (find duplicates)
     let messageData = {
         "attachment": {
             "type": "template",
