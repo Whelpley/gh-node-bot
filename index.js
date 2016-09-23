@@ -263,7 +263,7 @@ function sendAllQuestionCards(sender, questions) {
         // truncate title
         title = title.substring(0,79);
         // dummy text for solutions for now
-        solutions = "Hit it with a hammer until it works better. Does it work yet? Good. You did real good, kid. You're a winner. Really. Now go home to your mother.";
+        let solutions = "Hit it with a hammer until it works better. Does it work yet? Good. You did real good, kid. You're a winner. Really. Now go home to your mother.";
         solutions = solutions.substring(0,79);
 
         let singleElement = {
