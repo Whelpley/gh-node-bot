@@ -48,8 +48,11 @@ app.post('/webhook/', function (req, res) {
             // keep in development stage to confirm functionality of response
             sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
+            // search Questions, if found return Question cards, if not return Company cards
+            requestQuestionCards(sender, text);
+
             //search for Companies and send out info cards for each
-            requestCompanyCards(sender, text);
+            // requestCompanyCards(sender, text);
 
           // // bounces back Generic template cards
           // if (text === 'Generic') {
@@ -72,6 +75,39 @@ app.post('/webhook/', function (req, res) {
 
     res.sendStatus(200)
 })
+
+function requestQuestionCards(sender, text) {
+    let questions = [];
+    let filters = {
+        type: 'question',
+        isGuide: true
+    };
+    let limit = 5;
+    request('https://api.gethuman.co/v3/posts/search?match='
+            + encodeURIComponent(text)
+            + '&limit='
+            + limit
+            + '&filterBy='
+            + encodeURIComponent(JSON.stringify(filters))
+            , function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            // load response object into questions array
+            questions = JSON.parse(body);
+            if (questions && questions.length) {
+                let responseText = "We found " + (questions.length + 1) + "relevant questions to your input.";
+                sendTextMessage(sender, responseText);
+                console.log(questions);
+            } else {
+                let responseText = "We could not find a matching question to your input, displaying relevant companies instead:";
+                sendTextMessage(sender, responseText);
+                requestCompanyCards(sender, text);
+            };
+
+        } else if (error) {
+            console.log(error);
+        }
+    })
+};
 
 function requestCompanyCards(sender, text) {
     let companies = [];
