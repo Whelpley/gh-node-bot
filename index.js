@@ -81,7 +81,9 @@ function requestQuestionCards(sender, text) {
     let companyIDs = [];
     let guideIDs = [];
     let companyObjects = [];
+    let companyTable = {};
     let guideObjects = [];
+    let guideTable = {};
 
     let filters = {
         type: 'question',
@@ -119,7 +121,11 @@ function requestQuestionCards(sender, text) {
                         companyObjects = JSON.parse(body);
                         responseText = "We found " + companyObjects.length + " companies matching your questions.";
                         sendTextMessage(sender, responseText);
-                        console.log("All company Objects returned from API: " + body);
+                        //make the hash table
+                        for (var i = 0; i < companyObjects.length; i++) {
+                            companyTable[companyObjects[i]._id] = companyObjects[i]
+                        };
+                        console.log("All company Objects returned from API: " + companyTable);
 
                     } else if (error) {
                     console.log(error);
@@ -135,12 +141,20 @@ function requestQuestionCards(sender, text) {
                         guideObjects = JSON.parse(body);
                         responseText = "We found " + guideObjects.length + " guides matching your questions.";
                         sendTextMessage(sender, responseText);
-                        console.log("All guide Objects returned from API: " + body);
-
+                        //make the hash table
+                        for (var i = 0; i < guideObjects.length; i++) {
+                            guideTable[guideObjects[i]._id] = guideObjects[i]
+                        };
+                        console.log("All guide Objects returned from API: " + guideTable);
                     } else if (error) {
                     console.log(error);
                   }
                 });
+
+                // attach Companies and Guides to Questions
+
+                // Make cards out of massive data hash
+                // (room for optimization later! too much data being shuffled around)
 
             } else {
                 let responseText = "We could not find a matching question to your input, displaying relevant companies instead:";
