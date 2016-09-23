@@ -252,7 +252,7 @@ function sendAllQuestionCards(sender, questions) {
     for (let i = 0; i < questions.length; i++) {
         let companyName = questions[i].companyName || '';
         let urlId = questions[i].urlId || '';
-        let phone = questions[i].phone || '';
+        let phone = questions[i].company.callback.phone || '';
         //format phone# for international format
         let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
         let title = questions[i].title || '';
