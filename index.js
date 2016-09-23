@@ -93,7 +93,7 @@ app.post('/webhook/', function (req, res) {
         }
 
         if (event.postback) {
-          // (test message verify button - echoes postback payload)
+          // test message verify button - echoes postback payload
           let text = JSON.stringify(event.postback);
           sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token);
 
@@ -106,14 +106,14 @@ app.post('/webhook/', function (req, res) {
     res.sendStatus(200)
 })
 
-function sendDummyCard(sender, text) {
+function sendDummyCard(sender, payloadText) {
 
     let allElements = [];
 
     let singleElement = {
         "title": "Dummy Card!",
         // what to display if no email or phone available?
-        "subtitle": "This will show a solution for " + text,
+        "subtitle": "This will show a solution for " + payloadText,
         // "buttons": [{
         //     "type": "postback",
         //     "title": "Guides",
@@ -156,7 +156,6 @@ function sendDummyCard(sender, text) {
 function sendAllCompanyCards(sender, companies) {
 
     let allElements = [];
-
     // iterate over companies, make single cards, push into allElements
     // for better performance, pare down companies to most relevant before this step
     for (let i = 0; i < companies.length; i++) {
@@ -165,14 +164,14 @@ function sendAllCompanyCards(sender, companies) {
         let phone = companies[i].phone || '';
         //format phone# for international format
         let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
-        let image = "http://findicons.com/files/icons/2198/dark_glass/128/modem2.png"
-        let singleElement = {}
-
-        singleElement = {
+        // dummy image for now
+        // has to be a valid URL - not local storage
+        // let image = "http://findicons.com/files/icons/2198/dark_glass/128/modem2.png"
+        let singleElement = {
             "title": name,
             // what to display if no email or phone available?
             "subtitle": email,
-            "image_url": image,
+            // "image_url": image,
             "buttons": [{
                 "type": "postback",
                 "title": "Guides",
@@ -192,12 +191,6 @@ function sendAllCompanyCards(sender, companies) {
                 "payload": phoneIntl
             })
         };
-
-        // cheap hack to limit number of cards displayed
-        // later: chunk it out in waves
-        // if (allElements.length < 5) {
-        //     allElements.push(singleElement);
-        // }
         allElements.push(singleElement);
     };
     // console.log("All of the elements of the cards: " + allElements);
