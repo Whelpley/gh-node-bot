@@ -43,41 +43,14 @@ app.post('/webhook/', function (req, res) {
         // handling text input
         if (event.message && event.message.text) {
             let text = event.message.text;
-            let companies = [];
+
             // echoes back everything sent
             // keep in development stage to confirm functionality of response
             sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
-            //punch up GH API (company search only) with user text input
-            request('https://api.gethuman.co/v3/companies/search?limit=5&match=' + encodeURIComponent(text), function (error, response, body) {
-              if (!error && response.statusCode == 200) {
-                let parsedBody = JSON.parse(body);
-                // console.log("Full API response: " + parsedBody);
-                // iterate over API response, construct company object
-                for (let i=0; i < parsedBody.length; i++) {
-                    let newName = parsedBody[i].name || '';
-                    let newPhone = parsedBody[i].callback.phone || '';
-                    let newEmail = '';
-                    // filter GH array to find contactInfo
-                    let emailContactMethods = parsedBody[i].contactMethods.filter(function ( method ) {
-                        return method.type === "email";
-                    });
-                    if (emailContactMethods && emailContactMethods.length) {
-                        // console.log("Email Object found: " + JSON.stringify(emailContactMethods));
-                        newEmail = emailContactMethods[0].target;
-                    };
-                    // console.log("Harvested an email: " + newEmail);
-                    let newCompany = new Company(newName, newPhone, newEmail);
-                    // push object into Companies array
-                    // console.log("Company # " + i + ": " + newName + ": " + newCompany);
-                    companies.push(newCompany);
-                };
-                // console.log("Formatted companies array: " + companies);
-                sendAllCompanyCards(sender, companies);
-              } else if (error) {
-                console.log(error);
-              }
-            })
+            //search for Companies and send out info cards for each
+            requestCompanyCards(text);
+
           // // bounces back Generic template cards
           // if (text === 'Generic') {
           //     sendGenericMessage(sender)
@@ -99,6 +72,40 @@ app.post('/webhook/', function (req, res) {
 
     res.sendStatus(200)
 })
+
+function requestCompanyCards(text) {
+    let companies = [];
+
+    request('https://api.gethuman.co/v3/companies/search?limit=5&match=' + encodeURIComponent(text), function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        let parsedBody = JSON.parse(body);
+        // console.log("Full API response: " + parsedBody);
+        // iterate over API response, construct company object
+        for (let i=0; i < parsedBody.length; i++) {
+            let newName = parsedBody[i].name || '';
+            let newPhone = parsedBody[i].callback.phone || '';
+            let newEmail = '';
+            // filter GH array to find contactInfo
+            let emailContactMethods = parsedBody[i].contactMethods.filter(function ( method ) {
+                return method.type === "email";
+            });
+            if (emailContactMethods && emailContactMethods.length) {
+                // console.log("Email Object found: " + JSON.stringify(emailContactMethods));
+                newEmail = emailContactMethods[0].target;
+            };
+            // console.log("Harvested an email: " + newEmail);
+            let newCompany = new Company(newName, newPhone, newEmail);
+            // push object into Companies array
+            // console.log("Company # " + i + ": " + newName + ": " + newCompany);
+            companies.push(newCompany);
+        };
+        // console.log("Formatted companies array: " + companies);
+        sendAllCompanyCards(sender, companies);
+      } else if (error) {
+        console.log(error);
+      }
+    })
+};
 
 function sendDummyCard(sender, payloadText) {
     let allElements = [];
