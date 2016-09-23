@@ -119,7 +119,7 @@ function requestQuestionCards(sender, text) {
                         companyObjects = JSON.parse(body);
                         responseText = "We found " + companyObjects.length + " companies matching your questions.";
                         sendTextMessage(sender, responseText);
-                        console.log("All company Objects returned from API: " + companyObjects);
+                        console.log("All company Objects returned from API: " + body);
 
                     } else if (error) {
                     console.log(error);
@@ -135,7 +135,7 @@ function requestQuestionCards(sender, text) {
                         guideObjects = JSON.parse(body);
                         responseText = "We found " + guideObjects.length + " guides matching your questions.";
                         sendTextMessage(sender, responseText);
-                        console.log("All guide Objects returned from API: " + guideObjects);
+                        console.log("All guide Objects returned from API: " + body);
 
                     } else if (error) {
                     console.log(error);
