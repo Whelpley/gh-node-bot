@@ -74,7 +74,6 @@ app.post('/webhook/', function (req, res) {
 })
 
 function requestCompanyCards(sender, text) {
-    let sender = sender;
     let companies = [];
 
     request('https://api.gethuman.co/v3/companies/search?limit=5&match=' + encodeURIComponent(text), function (error, response, body) {
