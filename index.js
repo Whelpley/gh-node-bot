@@ -49,7 +49,7 @@ app.post('/webhook/', function (req, res) {
             sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
             //search for Companies and send out info cards for each
-            requestCompanyCards(text);
+            requestCompanyCards(sender, text);
 
           // // bounces back Generic template cards
           // if (text === 'Generic') {
@@ -73,7 +73,8 @@ app.post('/webhook/', function (req, res) {
     res.sendStatus(200)
 })
 
-function requestCompanyCards(text) {
+function requestCompanyCards(sender, text) {
+    let sender = sender;
     let companies = [];
 
     request('https://api.gethuman.co/v3/companies/search?limit=5&match=' + encodeURIComponent(text), function (error, response, body) {
