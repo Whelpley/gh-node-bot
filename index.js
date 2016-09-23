@@ -257,7 +257,7 @@ function sendAllQuestionCards(sender, questions) {
         let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
         let title = questions[i].title || '';
         // check if company name is in title already, add to front if not
-        if (title.indexof(companyName) < 0) {
+        if (title.indexOf(companyName) < 0) {
             title = companyName + ": " + title;
         };
         // truncate title
