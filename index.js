@@ -126,10 +126,10 @@ function requestQuestionCards(sender, text) {
                   }
                 });
 
-                // make hash table of guideID: question Objects
+                // make hash table of guideID: guide Objects
                 // currently just an array of them, not a hash table
                 request('https://api.gethuman.co/v3/companies?where='
-                    + encodeURIComponent(JSON.stringify({ _id: { $in: questionIDs }}))
+                    + encodeURIComponent(JSON.stringify({ _id: { $in: guideIDs }}))
                     , function (error, response, body) {
                     if (!error && response.statusCode == 200) {
                         guideObjects = JSON.parse(body);
