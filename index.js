@@ -147,10 +147,10 @@ function requestQuestionCards(sender, text) {
                                     //     + JSON.stringify(questions[i].company));
                                     let gID = questions[i].guideId;
                                     questions[i].guide = guideTable[gID];
-                                    // console.log("Guide object attached to Question # "
-                                    // + i
-                                    // + ": "
-                                    // + JSON.stringify(questions[i].guide));
+                                    console.log("Guide object attached to Question # "
+                                    + i
+                                    + ": "
+                                    + JSON.stringify(questions[i].guide));
                                 };
                                 // Make cards out of massive data hash
                                 // (room for optimization later! too much data being shuffled around!)
@@ -279,10 +279,10 @@ function sendAllQuestionCards(sender, questions) {
         };
         // truncate title
         title = title.substring(0,79);
-        // dummy text for solutions for now
+        // dummy text for solutions
         // let solution = "Hit it with a hammer until it works better. Does it work yet? Good. You did real good, kid. You're a winner. Really. Now go home to your mother.";
         // real solutions:
-        let solution = questions[i].guide.post.details;
+        let solution = questions[i].guide.steps.details || '';
         console.log("Solution for Question # " + i + ": " + solution);
         solution = solution.substring(0,79);
 
