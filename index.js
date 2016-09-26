@@ -48,7 +48,7 @@ app.post('/webhook/', function (req, res) {
             // keep in development stage to confirm functionality of response
             sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
-            // search Questions, if found return Question cards, if not return Company cards
+            // search Questions, if found returns Question cards, if not returns Company cards
             requestQuestionCards(sender, text);
 
             //search for Companies and send out info cards for each
@@ -119,7 +119,7 @@ function requestQuestionCards(sender, text) {
                         for (let i = 0; i < companyObjects.length; i++) {
                             companyTable[companyObjects[i]._id] = companyObjects[i]
                         };
-                        // console.log("All company Objects returned from API: " + JSON.stringify(companyTable));
+                        console.log("All company Objects returned from API: " + JSON.stringify(companyTable));
                     } else if (error) {
                     console.log(error);
                   }
@@ -147,6 +147,10 @@ function requestQuestionCards(sender, text) {
                 for (var i = 0; i < questions.length; i++) {
                     let cID = questions[i].companyId;
                     questions[i].company = companyTable[cID];
+                    console.log("Company object attached to Question # "
+                        + i
+                        + ": "
+                        + JSON.stringify(questions[i].company));
                     let gID = questions[i].guideId;
                     questions[i].guide = guideTable[gID];
                 };
@@ -157,6 +161,7 @@ function requestQuestionCards(sender, text) {
             } else {
                 let responseText = "We could not find a matching question to your input, displaying relevant companies instead:";
                 sendTextMessage(sender, responseText);
+                // need to check error handling on following method:
                 requestCompanyCards(sender, text);
             };
 
@@ -166,6 +171,10 @@ function requestQuestionCards(sender, text) {
     })
 };
 
+// needs:
+    // refactoring
+    // variable scope checking
+    // error handling
 function requestCompanyCards(sender, text) {
     let companies = [];
 
