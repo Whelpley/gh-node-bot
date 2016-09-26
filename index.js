@@ -6,8 +6,6 @@ const request = require('request')
 const app = express()
 const phoneFormatter = require('phone-formatter');
 
-// const companyInfo = require('./companyinfo.js');
-
 const token = process.env.FB_PAGE_ACCESS_TOKEN
 const GH_token = process.env.GH_API_ACCESS_TOKEN
 
@@ -15,13 +13,13 @@ app.set('port', (process.env.PORT || 5000))
 
 // Process application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: false}))
-
 // Process application/json
 app.use(bodyParser.json())
 
 // Index route
+// not really needed, but will appear if the Heroku app is requested via browser
 app.get('/', function (req, res) {
-    res.send('Hello world, I am a chat bot')
+    res.send('Hello world, I am a chat bot. Nothing to see over here, move along now.')
 })
 
 // for Facebook verification
@@ -33,7 +31,6 @@ app.get('/webhook/', function (req, res) {
 })
 
 app.post('/webhook/', function (req, res) {
-
     //where all responses to text inputs are handled
     let messaging_events = req.body.entry[0].messaging
     for (let i = 0; i < messaging_events.length; i++) {
@@ -43,17 +40,15 @@ app.post('/webhook/', function (req, res) {
         // handling text input
         if (event.message && event.message.text) {
             let text = event.message.text;
-
             // echoes back everything sent
             // keep in development stage to confirm functionality of response
-            sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
+            // sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200));
 
             // search Questions, if found returns Question cards, if not returns Company cards
             requestQuestionCards(sender, text);
 
             //search for Companies and send out info cards for each
             // requestCompanyCards(sender, text);
-
         }
 
         // handling postback buttons
@@ -166,7 +161,7 @@ function requestQuestionCards(sender, text) {
                 });
 
             } else {
-                let responseText = "We could not find a matching question to your input, displaying relevant companies instead:";
+                let responseText = "We could not find any matching questions to your input, displaying relevant companies instead:";
                 sendTextMessage(sender, responseText);
                 // need to check error handling on following method:
                 requestCompanyCards(sender, text);
@@ -186,31 +181,35 @@ function requestCompanyCards(sender, text) {
     let companies = [];
 
     request('https://api.gethuman.co/v3/companies/search?limit=5&match=' + encodeURIComponent(text), function (error, response, body) {
-      if (!error && response.statusCode == 200) {
+        if (!error && response.statusCode == 200) {
         let parsedBody = JSON.parse(body);
         // console.log("Full API response: " + parsedBody);
         // iterate over API response, construct company object
-        for (let i=0; i < parsedBody.length; i++) {
-            let newName = parsedBody[i].name || '';
-            let newPhone = parsedBody[i].callback.phone || '';
-            let newEmail = '';
-            // filter GH array to find contactInfo
-            let emailContactMethods = parsedBody[i].contactMethods.filter(function ( method ) {
-                return method.type === "email";
-            });
-            if (emailContactMethods && emailContactMethods.length) {
-                // console.log("Email Object found: " + JSON.stringify(emailContactMethods));
-                newEmail = emailContactMethods[0].target;
+        if (parsedBody && parsedBody.length) {
+            for (let i=0; i < parsedBody.length; i++) {
+                let newName = parsedBody[i].name || '';
+                let newPhone = parsedBody[i].callback.phone || '';
+                let newEmail = '';
+                // filter GH array to find contactInfo
+                let emailContactMethods = parsedBody[i].contactMethods.filter(function ( method ) {
+                    return method.type === "email";
+                });
+                if (emailContactMethods && emailContactMethods.length) {
+                    // console.log("Email Object found: " + JSON.stringify(emailContactMethods));
+                    newEmail = emailContactMethods[0].target;
+                };
+                // console.log("Harvested an email: " + newEmail);
+                let newCompany = new Company(newName, newPhone, newEmail);
+                // push object into Companies array
+                // console.log("Company # " + i + ": " + newName + ": " + newCompany);
+                companies.push(newCompany);
             };
-            // console.log("Harvested an email: " + newEmail);
-            let newCompany = new Company(newName, newPhone, newEmail);
-            // push object into Companies array
-            // console.log("Company # " + i + ": " + newName + ": " + newCompany);
-            companies.push(newCompany);
+            // console.log("Formatted companies array: " + companies);
+            sendAllCompanyCards(sender, companies);
+        } else {
+            let responseText = "We could not find any companies matching your input. Could you please tell me your issue again, and be sure to spell the company name correctly?";
+            sendTextMessage(sender, responseText);
         };
-        // console.log("Formatted companies array: " + companies);
-        sendAllCompanyCards(sender, companies);
-
       } else if (error) {
         console.log(error);
       }
@@ -279,8 +278,6 @@ function sendAllQuestionCards(sender, questions) {
         };
         // truncate title
         title = title.substring(0,79);
-        // dummy text for solutions
-        // let solution = "Hit it with a hammer until it works better. Does it work yet? Good. You did real good, kid. You're a winner. Really. Now go home to your mother.";
         // real solutions:
         let solution = questions[i].guide.steps[0].details || 'No solution found. Despair and wail!';
         console.log("Solution for Question # " + i + ": " + solution);
@@ -344,23 +341,25 @@ function sendAllCompanyCards(sender, companies) {
     // iterate over companies, make single cards, push into allElements
     for (let i = 0; i < companies.length; i++) {
         let name = companies[i].name || '';
-        let email = companies[i].email || '';
+        let email = companies[i].email || 'No email found';
         let phone = companies[i].phone || '';
         //format phone# for international format
         let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
-        // dummy image for now
+        // dummy image
         // has to be a valid URL - not local storage
         // let image = "http://findicons.com/files/icons/2198/dark_glass/128/modem2.png"
         let singleElement = {
             "title": name,
-            // what to display if no email or phone available?
             "subtitle": email,
             // "image_url": image,
-            "buttons": [{
-                "type": "postback",
-                "title": "Guides",
-                "payload": name,
-            }, {
+            "buttons": [
+            // This would trigger a new card, but it's not needed since the Guides are already checked for initially.
+            // {
+            //     "type": "postback",
+            //     "title": "Guides",
+            //     "payload": name,
+            // },
+            {
                 "type": "web_url",
                 "url": "https://gethuman.com?company=" + encodeURIComponent(name) ,
                 "title": "Solve - $20"
