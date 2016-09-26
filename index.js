@@ -120,43 +120,46 @@ function requestQuestionCards(sender, text) {
                             companyTable[companyObjects[i]._id] = companyObjects[i]
                         };
                         console.log("All company Objects returned from API: " + JSON.stringify(companyTable));
+
+                        // TIME FOR CALLBACK HELL! Nesting requests!
+                        // make hash table of guideID: guide Objects
+                        request('https://api.gethuman.co/v3/guides?where='
+                            + encodeURIComponent(JSON.stringify({ _id: { $in: guideIDs }}))
+                            , function (error, response, body) {
+                            if (!error && response.statusCode == 200) {
+                                guideObjects = JSON.parse(body);
+                                responseText = "We found " + guideObjects.length + " guides matching your questions.";
+                                sendTextMessage(sender, responseText);
+                                //make the hash table
+                                for (let i = 0; i < guideObjects.length; i++) {
+                                    guideTable[guideObjects[i]._id] = guideObjects[i]
+                                };
+                                // console.log("All guide Objects returned from API: " + JSON.stringify(guideTable));
+
+                                // MORE CALLBACK HELL
+                                // attach Companies and Guides to Questions
+                                for (var i = 0; i < questions.length; i++) {
+                                    let cID = questions[i].companyId;
+                                    questions[i].company = companyTable[cID];
+                                    console.log("Company object attached to Question # "
+                                        + i
+                                        + ": "
+                                        + JSON.stringify(questions[i].company));
+                                    let gID = questions[i].guideId;
+                                    questions[i].guide = guideTable[gID];
+                                };
+                                // Make cards out of massive data hash
+                                // (room for optimization later! too much data being shuffled around!)
+                                sendAllQuestionCards(sender, questions);
+
+                            } else if (error) {
+                            console.log(error);
+                          }
+                        });
                     } else if (error) {
                     console.log(error);
                   }
                 });
-
-                // make hash table of guideID: guide Objects
-                request('https://api.gethuman.co/v3/guides?where='
-                    + encodeURIComponent(JSON.stringify({ _id: { $in: guideIDs }}))
-                    , function (error, response, body) {
-                    if (!error && response.statusCode == 200) {
-                        guideObjects = JSON.parse(body);
-                        responseText = "We found " + guideObjects.length + " guides matching your questions.";
-                        sendTextMessage(sender, responseText);
-                        //make the hash table
-                        for (let i = 0; i < guideObjects.length; i++) {
-                            guideTable[guideObjects[i]._id] = guideObjects[i]
-                        };
-                        // console.log("All guide Objects returned from API: " + JSON.stringify(guideTable));
-                    } else if (error) {
-                    console.log(error);
-                  }
-                });
-
-                // attach Companies and Guides to Questions
-                for (var i = 0; i < questions.length; i++) {
-                    let cID = questions[i].companyId;
-                    questions[i].company = companyTable[cID];
-                    console.log("Company object attached to Question # "
-                        + i
-                        + ": "
-                        + JSON.stringify(questions[i].company));
-                    let gID = questions[i].guideId;
-                    questions[i].guide = guideTable[gID];
-                };
-                // Make cards out of massive data hash
-                // (room for optimization later! too much data being shuffled around!)
-                sendAllQuestionCards(sender, questions);
 
             } else {
                 let responseText = "We could not find a matching question to your input, displaying relevant companies instead:";
@@ -260,7 +263,7 @@ function sendAllQuestionCards(sender, questions) {
     for (let i = 0; i < questions.length; i++) {
         let companyName = questions[i].companyName || '';
         let urlId = questions[i].urlId || '';
-        console.log("Company info for " + companyName + ": " + JSON.stringify(questions[i].company));
+        // console.log("Company info for " + companyName + ": " + JSON.stringify(questions[i].company));
         let phone = (questions[i].company) ? questions[i].company.callback.phone : '';
         console.log("Phone info for " + companyName + ": " + phone);
         //format phone# for international format
