@@ -141,12 +141,16 @@ function requestQuestionCards(sender, text) {
                                 for (var i = 0; i < questions.length; i++) {
                                     let cID = questions[i].companyId;
                                     questions[i].company = companyTable[cID];
-                                    console.log("Company object attached to Question # "
-                                        + i
-                                        + ": "
-                                        + JSON.stringify(questions[i].company));
+                                    // console.log("Company object attached to Question # "
+                                    //     + i
+                                    //     + ": "
+                                    //     + JSON.stringify(questions[i].company));
                                     let gID = questions[i].guideId;
                                     questions[i].guide = guideTable[gID];
+                                    console.log("Guide object attached to Question # "
+                                    + i
+                                    + ": "
+                                    + JSON.stringify(questions[i].guide));
                                 };
                                 // Make cards out of massive data hash
                                 // (room for optimization later! too much data being shuffled around!)
@@ -265,7 +269,7 @@ function sendAllQuestionCards(sender, questions) {
         let urlId = questions[i].urlId || '';
         // console.log("Company info for " + companyName + ": " + JSON.stringify(questions[i].company));
         let phone = (questions[i].company) ? questions[i].company.callback.phone : '';
-        console.log("Phone info for " + companyName + ": " + phone);
+        // console.log("Phone info for " + companyName + ": " + phone);
         //format phone# for international format
         let phoneIntl = (phone) ? phoneFormatter.format(phone, "+1NNNNNNNNNN") : '';
         let title = questions[i].title || '';
