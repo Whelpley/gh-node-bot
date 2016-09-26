@@ -282,7 +282,7 @@ function sendAllQuestionCards(sender, questions) {
         // dummy text for solutions
         // let solution = "Hit it with a hammer until it works better. Does it work yet? Good. You did real good, kid. You're a winner. Really. Now go home to your mother.";
         // real solutions:
-        let solution = questions[i].guide.steps.details || '';
+        let solution = questions[i].guide.steps[0].details || 'No solution found. Despair and wail!';
         console.log("Solution for Question # " + i + ": " + solution);
         solution = solution.substring(0,79);
 
