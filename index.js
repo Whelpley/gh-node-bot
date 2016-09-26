@@ -46,9 +46,6 @@ app.post('/webhook/', function (req, res) {
 
             // search Questions, if found returns Question cards, if not returns Company cards
             requestQuestionCards(sender, text);
-
-            //search for Companies and send out info cards for each
-            // requestCompanyCards(sender, text);
         }
 
         // handling postback buttons
@@ -91,25 +88,23 @@ function requestQuestionCards(sender, text) {
             // load response object into questions array
             questions = JSON.parse(body);
             if (questions && questions.length) {
-                let responseText = "We found " + questions.length + " relevant questions to your input.";
-                sendTextMessage(sender, responseText);
-                console.log("All questions returned from API: " + questions);
-
+                // let responseText = "We found " + questions.length + " relevant questions to your input.";
+                // sendTextMessage(sender, responseText);
+                // console.log("All questions returned from API: " + questions);
                 for (let i = 0; i < questions.length; i++) {
                     companyIDs.push(questions[i].companyId);
                     guideIDs.push(questions[i].guideId);
                 };
-                console.log("Company ID's: " + companyIDs);
-                console.log("Guide ID's: " + guideIDs);
-
+                // console.log("Company ID's: " + companyIDs);
+                // console.log("Guide ID's: " + guideIDs);
                 // make hash table of companyID: company Objects
                 request('https://api.gethuman.co/v3/companies?where='
                     + encodeURIComponent(JSON.stringify({ _id: { $in: companyIDs }}))
                     , function (error, response, body) {
                     if (!error && response.statusCode == 200) {
                         companyObjects = JSON.parse(body);
-                        responseText = "We found " + companyObjects.length + " companies matching your questions.";
-                        sendTextMessage(sender, responseText);
+                        // responseText = "We found " + companyObjects.length + " companies matching your questions.";
+                        // sendTextMessage(sender, responseText);
                         //make the hash table
                         for (let i = 0; i < companyObjects.length; i++) {
                             companyTable[companyObjects[i]._id] = companyObjects[i]
@@ -123,8 +118,8 @@ function requestQuestionCards(sender, text) {
                             , function (error, response, body) {
                             if (!error && response.statusCode == 200) {
                                 guideObjects = JSON.parse(body);
-                                responseText = "We found " + guideObjects.length + " guides matching your questions.";
-                                sendTextMessage(sender, responseText);
+                                // responseText = "We found " + guideObjects.length + " guides matching your questions.";
+                                // sendTextMessage(sender, responseText);
                                 //make the hash table
                                 for (let i = 0; i < guideObjects.length; i++) {
                                     guideTable[guideObjects[i]._id] = guideObjects[i]
@@ -166,7 +161,6 @@ function requestQuestionCards(sender, text) {
                 // need to check error handling on following method:
                 requestCompanyCards(sender, text);
             };
-
         } else if (error) {
             console.log(error);
         }
@@ -217,7 +211,7 @@ function requestCompanyCards(sender, text) {
 };
 
 function sendDummyCard(sender, payloadText) {
-    let allElements = [];
+    let elements = [];
     let singleElement = {
         "title": "Dummy Card!",
         // what to display if no email or phone available?
@@ -232,13 +226,13 @@ function sendDummyCard(sender, payloadText) {
         //     "title": "Solve - $20"
         // }],
     };
-    allElements.push(singleElement);
+    elements.push(singleElement);
     let messageData = {
         "attachment": {
             "type": "template",
             "payload": {
                 "template_type": "generic",
-                "elements": allElements
+                "elements": elements
             }
         }
     };
@@ -260,9 +254,9 @@ function sendDummyCard(sender, payloadText) {
 };
 
 function sendAllQuestionCards(sender, questions) {
-    console.log("All the question cards will be sent at this step.");
-    let allElements = [];
-    // iterate over Questions, make single cards, push into allElements
+    console.log("Question cards will be sent at this step.");
+    let elements = [];
+    // iterate over Questions, make single cards, push into elements
     for (let i = 0; i < questions.length; i++) {
         let companyName = questions[i].companyName || '';
         let urlId = questions[i].urlId || '';
@@ -304,41 +298,15 @@ function sendAllQuestionCards(sender, questions) {
                 "payload": phoneIntl
             })
         };
-        allElements.push(singleElement);
+        elements.push(singleElement);
     };
-    // send it on!
-    // collapse this into a re-usable function (find duplicates)
-    let messageData = {
-        "attachment": {
-            "type": "template",
-            "payload": {
-                "template_type": "generic",
-                "elements": allElements
-            }
-        }
-    };
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token:token},
-        method: 'POST',
-        json: {
-            recipient: {id:sender},
-            message: messageData,
-        }
-    }, function(error, response, body) {
-        if (error) {
-            console.log('Error sending messages: ', error)
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error)
-        }
-    });
-
+    sendCards(sender, elements);
 };
 
 function sendAllCompanyCards(sender, companies) {
-
-    let allElements = [];
-    // iterate over companies, make single cards, push into allElements
+    console.log("Company cards will be sent at this step.");
+    let elements = [];
+    // iterate over companies, make single cards, push into elements
     for (let i = 0; i < companies.length; i++) {
         let name = companies[i].name || '';
         let email = companies[i].email || 'No email found';
@@ -374,34 +342,10 @@ function sendAllCompanyCards(sender, companies) {
                 "payload": phoneIntl
             })
         };
-        allElements.push(singleElement);
+        elements.push(singleElement);
     };
-    // console.log("All of the elements of the cards: " + allElements);
-    // collapse this into a re-usable function (find duplicates)
-    let messageData = {
-        "attachment": {
-            "type": "template",
-            "payload": {
-                "template_type": "generic",
-                "elements": allElements
-            }
-        }
-    };
-    request({
-        url: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {access_token:token},
-        method: 'POST',
-        json: {
-            recipient: {id:sender},
-            message: messageData,
-        }
-    }, function(error, response, body) {
-        if (error) {
-            console.log('Error sending messages: ', error)
-        } else if (response.body.error) {
-            console.log('Error: ', response.body.error)
-        }
-    })
+    // console.log("All of the elements of the cards: " + elements);
+    sendCards(sender, elements);
 }
 
 //sends a basic text message
@@ -422,9 +366,38 @@ function sendTextMessage(sender, text) {
             console.log('Error: ', response.body.error)
         }
     })
+};
+
+//sends styled cards with buttons
+function sendCards(sender, elements) {
+    let messageData = ;
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:token},
+        method: 'POST',
+        json: {
+            recipient: {id:sender},
+            message: {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": elements
+                    }
+                }
+            },
+        }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        }
+    });
 }
 
 // should this function declaration exist elsewhere?
+// Should we just use the un-compressed Company object returned from the API?
 function Company(name, phone, email) {
   this.name = name;
   this.phone = phone;
