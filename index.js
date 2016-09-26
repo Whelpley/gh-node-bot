@@ -370,7 +370,6 @@ function sendTextMessage(sender, text) {
 
 //sends styled cards with buttons
 function sendCards(sender, elements) {
-    let messageData = ;
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {access_token:token},
